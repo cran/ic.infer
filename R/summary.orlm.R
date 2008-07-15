@@ -25,7 +25,6 @@ summary.orlm <- function(object, display.unrestr=FALSE,
      cat("\n\nRestricted model: R2 reduced from", object$orig.R2, "to", object$R2,"\n\n")
 
      g <- length(object$b.restr)
-
      ### add results from bootstrap testing here,
      ### once implemented
      if (bootCIs & !is.null(object$bootout)) {
@@ -51,6 +50,14 @@ summary.orlm <- function(object, display.unrestr=FALSE,
      cat("\n","Note: Coefficients marked with R are involved in restrictions.","\n")
 
      if (overall.tests) {
+        hilf <- choose(nrow(object$ui)-object$meq,floor((nrow(object$ui)-object$meq)/2))
+        if (!is.numeric(try(matrix(0, floor((nrow(object$ui)-object$meq)/2), hilf), 
+                    silent=TRUE)))
+           stop(paste("Overall tests in summary.orlm did not work, too many inequality restrictions,\n",
+              "interim matrix with ", floor((nrow(object$ui)-object$meq)/2)*hilf, 
+              " elements cannot be created\n", 
+              "You can avoid this error message by running summary.orlm with option overall.tests=FALSE",sep=""))
+
      cat("\n\nHypothesis Tests (", object$df.error, "error degrees of freedom):","\n")
      cat("Overall model test under the order restrictions:","\n")
          ### Exceptions for models without intercept to be implemented

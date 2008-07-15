@@ -7,11 +7,13 @@
 \alias{plot.orlm}
 \alias{print.orlm}
 \alias{summary.orlm}
+\alias{ic.infer}
+\alias{ic.infer-package}
 \title{ Functions for order restricted linear regression estimation and testing }
 \description{
 Function orlm calculates order-restricted linear models (linear equality and 
-inequality constraints). It uses function boot.orlm for bootstrapping, which 
-in turn uses the orlm.forboot... functions (not intended for use by users).
+inequality constraints). It uses the internal function boot.orlm for bootstrapping, 
+which in turn uses the internal functions orlm.forboot... . 
 The remaining functions extract coefficients, provide a residual plot, give a 
 short printout or a more extensive summary.
 }
@@ -114,8 +116,8 @@ orlm.forboot(data, indices, ...)
 Function \code{orlm} performs order restricted linear model analysis. 
 Functions \code{coef.orlm}, \code{plot.orlm}, \code{print.orlm}, and 
 \code{summary.orlm} provide methods for reporting the results on an object 
-of S3 class orlm. The functions directly referring to bootstrapping are 
-not to be called by the user but are called from within function \code{orlm} 
+of S3 class orlm. The functions directly referring to bootstrapping are internal 
+and should not be called by the user but are called from within function \code{orlm} 
 if option \code{boot} is set to \code{TRUE}.
 
 The output from summary.orlm provides information about the restrictions, 
@@ -172,7 +174,8 @@ Test 3 is conducted in case of no equality-restrictions only.
     testing in multivariate analysis. \emph{International Statistical Review} 
     \bold{56}, 49--62}
 \author{ Ulrike Groemping, TFH Berlin }
-\seealso{ See also \code{\link{ic.est}}, \code{\link{ic.test}}, \code{solve.QP}}
+\seealso{ See also \code{\link{ic.est}}, \code{\link{ic.test}}, 
+        \code{\link{or.relimp}}, \code{solve.QP}}
 \examples{
 limo <- lm(swiss)
 ## restricted linear model with restrictions that

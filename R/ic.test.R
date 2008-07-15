@@ -4,7 +4,6 @@ ic.test <- function(obj,TP=1,s2=1, df.error=Inf,
        df=NULL, wt=NULL, tol=sqrt(.Machine$double.eps), ...){
     if (!"orest" %in% class(obj)) stop("obj must be of class orest, e.g. result of ic.est")
     cov <- obj$Sigma
-    ### kann man eine Warnung anfordern, wenn caller nicht summary.orlm ist ?
     if ("orlm" %in% class(obj) & df.error < Inf) cov <- cov/obj$s2
     ui <- obj$ui
     ci <- obj$ci
@@ -14,6 +13,12 @@ ic.test <- function(obj,TP=1,s2=1, df.error=Inf,
     b.restr <- obj$b.restr
     index <- obj$restr.index
     g <- length(b.restr)
+    meq <- obj$meq
+    ## prevent long runs with late aborts because of too small memory
+    if (!is.numeric(try(matrix(0, floor((nrow(ui)-meq)/2),choose(nrow(ui)-meq,floor((nrow(ui)-meq)/2))), silent=TRUE)))
+           stop(paste("ic.test does not work, too many inequality restrictions in obj, \n",
+                 "interim matrix with ", floor((nrow(ui)-meq)/2)*choose(nrow(ui)-meq,floor((nrow(ui)-meq)/2)), 
+                 "elements cannot be created",sep=""))
     ## initialize for all TPs
     ## will later be modified for TP11
         ui.extra <- NULL
