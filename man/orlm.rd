@@ -62,11 +62,21 @@ orlm.forboot(data, indices, ...)
   \item{index}{ index numbers of the components of beta, 
             which are subject to the specified constraints 
              as \code{ui\%*\%beta[index] >= ci},
-             default is \code{2:length(coef(model))}, 
+             default is \code{index = 2:length(coef(model))}, 
              i.e. \code{ui} is supposed to have columns for all coefficients 
              except the intercept;
-             CAUTION: when modifying \code{index}, note that intercept is 
-             counted as the first coefficient!}
+             
+             CAUTIONs: 
+             
+             - \code{index} refers to the position of the coefficient in the model. 
+             The first coefficient is usually the intercept (which is therefore 
+             per default excluded from restrictions).
+             
+             - If the intercept is included into restrictions (model with intercept, 
+             index containing the element \code{1}, intercept-related column of ui 
+             not consisting of zeroes only), R-squared values may become unreasonable, 
+             if the restriction on the intercept is active. 
+             }
   \item{meq}{ integer number (default 0) giving the number of rows of \code{ui} that 
              are used for equality restrictions instead of inequality 
              restrictions. 

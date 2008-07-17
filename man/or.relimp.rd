@@ -24,7 +24,10 @@ all.R2(model, ui, ci = NULL, index = 2:length(coef(model)), meq = 0,
 }
 
 \arguments{
-\item{model}{ cf. explanation in \code{link{orlm}} }
+\item{model}{ a linear model object of class \code{lm} with data included; 
+            for functions \code{all.R2} and \code{or.relimp}, 
+            all explanatory variables must be numeric (i.e. no factors), 
+            and higher-order terms (e.g. interactions) are not permitted. }
 \item{ui}{ cf. explanation in \code{link{orlm}};
            cf. also details below }
 \item{ci}{ cf. explanation in \code{link{orlm}} }

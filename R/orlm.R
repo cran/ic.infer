@@ -46,9 +46,14 @@ orlm <- function (model, ui, ci=NULL, index=2:length(coef(model)), meq=0, orig.o
                           origmodel=NULL, ui=ui, ci=ci, iact=aus$iact, restr.index=index,meq=meq, bootout=NULL) 
              aus$fitted.values <- model.matrix(model)%*%aus$b.restr
              aus$residuals <- y - aus$fitted.values
+             ### R2 for models with and without weights and with and without intercept
              aus$R2 <- 1-sum(aus$residuals^2)/sum((y-mean(y))^2)
-             if (!is.null(weights(model)))
-                aus$R2 <- 1-sum(weights(model)*aus$residuals^2)/sum(weights(model)*(y-mean(y))^2)
+             if (is.null(weights(model)) & !attr(model$terms,"intercept")) 
+                  aus$R2 <- 1-sum(aus$residuals^2)/sum(y^2)
+             if (attr(model$terms,"intercept") & !is.null(weights(model)))
+                aus$R2 <- 1-sum(weights(model)*aus$residuals^2)/sum(weights(model)*(y-weighted.mean(y,w=aus$weights))^2)
+             if (!(attr(model$terms,"intercept") | is.null(weights(model))) ) 
+                     aus$R2 <- 1-sum(weights(model)*aus$residuals^2)/sum(weights(model)*y^2)
       }
 ## confidence region to be implemented via bootstrap
 ## printing, summary and plotting to be implemented

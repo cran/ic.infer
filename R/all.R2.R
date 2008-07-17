@@ -6,6 +6,10 @@ all.R2 <- function (model, ui, ci = NULL, index = 2:length(coef(model)),
         stop("ERROR: model must be of class lm.")
     if (any(c("glm", "mlm", "rlm") %in% class(model))) 
         stop("all.R2 does not work on classes glm, mlm or rlm.")
+
+    if (length(model$xlevels)>0) stop("model must not contain any factors!")
+    if (max(attr(model$terms,"order")) != 1) stop ("model must not contain higher order terms")
+    
     g <- length(coef(model))
     if (!(is.vector(index))) 
         stop("index must be a vector.")
