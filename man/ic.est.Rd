@@ -1,15 +1,19 @@
 \name{ic.est}
 \alias{ic.est}
 \alias{print.orest}
+\alias{summary.orest}
 \title{ Functions for order-restricted estimates and printing thereof }
 \description{
 Function ic.est estimates a mean vector under linear inequality constraints, 
-function print.orest outputs the result in a readable form.
+functions print.orest and summary.orest provide printed results in different 
+degrees of detail.
 }
 \usage{
 ic.est(x, Sigma, ui, ci = NULL, index = 1:nrow(Sigma), meq = 0, 
             tol = sqrt(.Machine$double.eps))
 \method{print}{orest}(x, digits = max(3, getOption("digits") - 3), scientific = FALSE, \dots)
+\method{summary}{orest}(x, display.unrestr = FALSE, brief = FALSE, 
+            digits = max(3, getOption("digits") - 3), scientific = FALSE, \dots)
 }
 \arguments{
   \item{x}{ for \code{ic.est}: unrestricted vector (e.g. mean of a sample of random vectors), 
@@ -52,6 +56,9 @@ ic.est(x, Sigma, ui, ci = NULL, index = 1:nrow(Sigma), meq = 0,
   \item{scientific}{ if \code{FALSE}, suppresses scientific representation of 
               numbers (default: \code{FALSE}) }
   \item{\dots}{ further arguments to \code{print} }
+  \item{display.unrestr}{ if TRUE, unrestricted estimate (i.e. \code{x}) is also displayed }
+  \item{brief}{ if \code{TRUE}, suppress printing of restrictions; 
+       default: \code{FALSE}}
 }
 \details{
 Function \code{ic.est} heavily relies on package \pkg{quadprog} for determining 
@@ -109,7 +116,7 @@ ic.est(x2, corr.minus, ui=diag(c(1,1)), ci=c(0,0))
 ic.est(x2, corr.minus, ui=diag(c(1,1)), ci=c(0,0), meq=1)
 ic.est(x3, corr.minus, ui=diag(c(1,1)), ci=c(0,0))
 ic.est(x3, corr.minus, ui=diag(c(1,1)), ci=c(0,0), meq=1)
-## estimation under on element restricted to being non-negative
+## estimation under one element restricted to being non-negative
 ic.est(x3, corr.plus, ui=1, ci=0, index=1)
 ic.est(x3, corr.plus, ui=1, ci=0, index=2)
 }

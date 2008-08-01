@@ -1,7 +1,7 @@
-orlm.boothilf <- function(data,...){
-    orlm(lm(data[,-1],weight=data$wt),...)$b.restr
-}
-
 orlm.forboot <- function(data, indices, ...){
-    return(orlm.boothilf(data[indices,], ...))
+    assign(".ind", indices, envir=.GlobalEnv)  
+    assign(".dat", data, envir=.GlobalEnv)
+    return(orlm(lm(.dat[.ind,-1], weights=.dat[.ind,]$wt), ...)$b.restr)
+    remove(".ind", envir=.GlobalEnv)
+    remove(".dat", envir=.GlobalEnv)
 }

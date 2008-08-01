@@ -31,7 +31,7 @@ orlm.forboot(data, indices, ...)
         add.smooth = getOption("add.smooth"), label.pos = c(4, 2), 
         cex.caption = 1)
 \method{print}{orlm}(x, digits = max(3, getOption("digits") - 3), \dots)
-\method{summary}{orlm}(object, display.unrestr = FALSE, 
+\method{summary}{orlm}(object, display.unrestr = FALSE, brief = FALSE, 
         digits = max(3, getOption("digits") - 3), 
         scientific = FALSE, overall.tests = TRUE, 
         bootCIs = TRUE, bty = "perc", level = 0.95, \dots)
@@ -106,6 +106,8 @@ orlm.forboot(data, indices, ...)
   \item{cex.caption}{ like in function \code{\link{plot.lm}} }
   \item{digits}{ number of digits to display }
   \item{display.unrestr}{ if \code{TRUE}, also display unrestricted model; 
+       default: \code{FALSE}}
+  \item{brief}{ if \code{TRUE}, suppress printing of restrictions; 
        default: \code{FALSE}}
   \item{scientific}{ if \code{FALSE}, suppresses scientific format; 
         default: \code{FALSE} }
@@ -198,11 +200,17 @@ summary(orlimo)
 ## same model using index vector
 orlimo <- orlm(limo, ui=rbind(c(1,-1,0,0),c(0,0,1,0),c(0,0,0,1)), index=3:6, meq=1)
 
-## reduce number of bootstrap samples for example run time
+## reduced number of bootstrap samples below reasonable size for example run time
 orlimo <- orlm(limo, ui=rbind(c(1,-1,0,0),c(0,0,1,0),c(0,0,0,1)), 
     index=3:6, meq=1, boot=TRUE, B=100)
 summary(orlimo)
+
+## bootstrap considering data as fixed 
+orlimof <- orlm(limo, ui=rbind(c(1,-1,0,0),c(0,0,1,0),c(0,0,0,1)), 
+    index=3:6, meq=1, boot=TRUE, B=100, fixed=TRUE)
+summary(orlimof, brief=TRUE)
 }
+
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
 \keyword{ htest }

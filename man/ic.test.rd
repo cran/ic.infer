@@ -12,15 +12,20 @@ display results in different degrees of detail.
 \usage{
 ic.test(obj, TP = 1, s2 = 1, df.error = Inf, 
              ui0.11 = diag(rep(1, length(obj$b.restr))), 
-             ci0.11 = NULL, 
+             ci0.11 = NULL, meq.alt = 0,
              df = NULL, wt = NULL, tol=sqrt(.Machine$double.eps), \dots)
 \method{print}{ict}(x, digits = max(3, getOption("digits") - 3), scientific = FALSE, \dots)
-\method{summary}{ict}(object, digits = max(3, getOption("digits") - 3), scientific = FALSE, 
-             tol=sqrt(.Machine$double.eps), \dots)
+\method{summary}{ict}(object, brief = TRUE, digits = max(3, getOption("digits") - 3), 
+             scientific = FALSE, tol=sqrt(.Machine$double.eps), \dots)
 }
 \arguments{
-  \item{obj}{ Object of class orest that contains unrestricted and 
-              restricted estimate, covariance structure, and restriction}
+  \item{obj}{ Object of class \code{orest} that contains unrestricted and 
+              restricted estimate, covariance structure, and restriction;
+              
+              for objects of class \code{orlm} (that inherit from class \code{orest}) 
+              information on \code{s2} and \code{df.error} is taken from \code{obj} 
+              (i.e. specifications of \code{s2} and \code{df.error} in the call 
+              to \code{ic.test} are ignored) }
   \item{TP}{ type of test problem, cf. details}
   \item{s2}{ multiplier that modifies the matrix \code{obj$Sigma} into 
           the (estimated) covariance matrix of the unrestricted estimate;
@@ -49,6 +54,8 @@ ic.test(obj, TP = 1, s2 = 1, df.error = Inf,
           by \code{ic.test} }
   \item{ci0.11}{ right-hand-side vector for equality restrictions defined by 
           \code{ui0.11}; so far, these should be 0!}
+  \item{meq.alt}{ number of equality restrictions (from beginning) that are 
+          maintained under the alternative hypothesis (for TP21) }
   \item{df}{ optional vector of degrees of freedom for mixed chibar- or beta-
          distributions; if omitted, degrees of freedom and weights are calculated;
          if given, must be accompanied by corresponding \code{wt} }
@@ -65,6 +72,8 @@ ic.test(obj, TP = 1, s2 = 1, df.error = Inf,
   \item{scientific}{ if FALSE, suppresses scientific format; 
         default: FALSE }
   \item{object}{  output object from \code{ict.test} (of class \code{ict})   }
+  \item{brief}{  if TRUE, requests brief output without restrictions (default), 
+                 otherwise restrictions are shown with indication, which are active    }
 }
 \details{ The following test problems are implemented:
   
@@ -77,6 +86,10 @@ ic.test(obj, TP = 1, s2 = 1, df.error = Inf,
   \code{TP=11}: H0: restriction valid with equality and further linear equalities
          vs.  H1: at least one equality from H0 violated, restriction valid
          
+  \code{TP=21}: H0: restrictions valid (including some equality restrictions)
+         vs.  H1: at least one restriction from H0 violated, some equality restrictions
+                  are maintained
+         
   Note that TPs 1 and 11 can reject H0 even if H1 is violated by the data. 
   Rejection of H0 does not provide evidence for H1 (but only against H0) in  
   these TPs because H1 is not the opposite of H0. The tests concentrate their 
@@ -85,7 +98,7 @@ ic.test(obj, TP = 1, s2 = 1, df.error = Inf,
   Also note that TP 3 does not make sense if \code{obj} involves equality 
   restrictions (\code{obj$meq}>0). 
   
-  Under TPs 1, 2, and 11, the distributions of test statistics are mixtures 
+  Under TPs 1, 2, 11, and 21, the distributions of test statistics are mixtures 
   of chi-square distributions (\code{df.error=Inf}) or beta-distributions (\code{df.error} finite) 
   with different degrees of freedom (chi-square) or parameter combinations (beta). 
   Shapiro (1988) gives detailed information on the mixing weights for the 

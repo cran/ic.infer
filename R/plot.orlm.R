@@ -1,8 +1,10 @@
-plot.orlm <- function (x, caption = "Residuals vs Fitted", panel = if (add.smooth) panel.smooth else points, 
+plot.orlm <- function (x, caption = "Residuals vs Fitted", 
+    panel = if (add.smooth) panel.smooth else points, 
     sub.caption = NULL, main = "", ..., id.n = 3, labels.id = names(x$residuals), 
     cex.id = 0.75, add.smooth = getOption("add.smooth"), 
     label.pos = c(4, 2), cex.caption = 1) 
 {
+    ## adapted from plot.lm
     if (!inherits(x, "orlm")) 
         stop("use only with \"orlm\" objects")
     isGlm <- inherits(x, "orglm")
@@ -44,9 +46,9 @@ plot.orlm <- function (x, caption = "Residuals vs Fitted", panel = if (add.smoot
     if (is.null(sub.caption)) {
         cal <- "Order-restricted linear model"
         if (x$meq>0) cal <- paste(cal, "with", x$meq, "equality and", nrow(x$ui)-x$meq, 
-                       "inequality restrictions of which", length(x$iact)-x$meq, "are active.") 
+            "inequality restrictions of which", length(x$iact)-x$meq, "are active.") 
         else cal <- paste(cal, "with", nrow(x$ui)-x$meq, 
-                       "inequality restrictions of which", length(x$iact), "are active.")
+            "inequality restrictions of which", length(x$iact), "are active.")
         sub.caption <- cal 
     }
     one.fig <- prod(par("mfcol")) == 1

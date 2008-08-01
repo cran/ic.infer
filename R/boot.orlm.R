@@ -1,22 +1,29 @@
-boot.orlm <- function (model, B = 1000, fixed=FALSE, ui, ci, index, meq) 
+boot.orlm <- function (model, B = 1000, fixed = FALSE, ui, ci, index, meq) 
 {
-    if (!"lm" %in% class(model)) stop("model must be of class lm") 
-
-      resp <- attr(model$terms, "response")
-      xcol <- which(rowSums(attr(model$terms,"factors")) > 0)
-      DATA <- as.data.frame(model$model[, c(resp, xcol)])
-      wt <- weights(model)
-      if (is.null(wt)) wt <- rep(1/nrow(DATA),nrow(DATA)) 
-      
-      if (!fixed)
-          booterg <- boot(cbind(wt=wt, DATA), orlm.forboot, 
-               B, ui = ui, ci = ci, index = index, meq=meq)
-      else{
-          e <- model$residuals
-          fit <- model$fitted.values
-           booterg <- boot(data.frame(DATA, fit = fit, e = e), 
-               orlm.forboot.fixed, 
-               B, ui = ui, ci = ci, index = index, meq=meq)
-          }
-     booterg
+    ## check for admissible model
+    if (!("lm" %in% class(model))) 
+        stop("ERROR: model must be of class lm.")
+    if (any(c("glm", "mlm", "rlm") %in% class(model))) 
+        stop("all.R2 does not work on classes glm, mlm or rlm.")
+    if (length(model$xlevels) > 0) 
+        stop("model must not contain any factors!")
+    if (max(attr(model$terms, "order")) != 1) 
+        stop("model must not contain higher order terms")
+    ## prepare data for bootstrap sampling
+    resp <- attr(model$terms, "response")
+    xcol <- which(rowSums(attr(model$terms, "factors")) > 0)
+    DATA <- as.data.frame(model$model[, c(resp, xcol)])
+    wt <- weights(model)
+    if (is.null(wt)) 
+        wt <- rep(1/nrow(DATA), nrow(DATA))
+    if (!fixed) 
+        booterg <- boot(cbind(wt = wt, DATA), orlm.forboot, B, 
+            ui = ui, ci = ci, index = index, meq = meq)
+    else {
+        e <- model$residuals
+        fit <- model$fitted.values
+        booterg <- boot(data.frame(DATA, fit = fit, e = e), orlm.forboot.fixed, 
+            B, ui = ui, ci = ci, index = index, meq = meq)
+    }
+    booterg
 }

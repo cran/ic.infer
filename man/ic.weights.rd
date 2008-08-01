@@ -13,7 +13,7 @@ the cumulative distribution functions based on these.
 They can be directly used and are called by function ic.test.
 }
 \usage{
-ic.weights(corr, algorithm = GenzBretz())
+ic.weights(corr, ...)
 pchibar(x, df, wt)
 pbetabar(x, df1, df2, wt)
 }
@@ -21,10 +21,13 @@ pbetabar(x, df1, df2, wt)
   \item{corr}{ \code{corr} is the correlation or covariance matrix 
               (or any multiple thereof) of the data or coefficients 
               for which weights are to be calculated }
-  \item{algorithm}{ \code{algorithm} is the algorithm to be used by function 
+  \item{\dots}{ \dots contains further arguments to be given to function 
               \code{pmvnorm} of package \code{mvtnorm} for calculating 
               multivariate normal rectangle probabilities; it is possible 
-              to tune weight accuracy by modifying this parameter, 
+              to select an algorithm (default in current version of \code{mvtnorm}: 
+              \code{algorithm = GenzBretz()}) and 
+              to tune weight accuracy by modifying including additional 
+              parameters into the algorithm specification, 
               cf. help for \code{GenzBretz}}
   \item{x}{ \code{x} is the quantile for which the distribution function
              is to be calculated }

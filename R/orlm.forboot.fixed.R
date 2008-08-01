@@ -1,5 +1,7 @@
 orlm.forboot.fixed <- function (data, indices, ...) 
 {
-    data[,1] <- data$e[indices] + data$fit
-    return(orlm(lm(data[,1:(ncol(data)-2)]),...)$b.restr)
+    e <- data$e[indices]
+    dat <- cbind(data$fit+e, data[,2:(ncol(data)-2)])
+    aus <- orlm(lm(dat), ...)$b.restr
+    return(aus)
 }
