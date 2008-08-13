@@ -1,17 +1,15 @@
-all.R2 <- function (model, ui, ci = NULL, index = 2:length(coef(model)), 
+all.R2 <- function (covmat, ui, ci = NULL, index = 2:ncol(covmat), 
     meq = 0, tol = sqrt(.Machine$double.eps), ...) 
 {
     ## check for admissible model
-    if (!("lm" %in% class(model))) 
-        stop("ERROR: model must be of class lm.")
-    if (any(c("glm", "mlm", "rlm") %in% class(model))) 
-        stop("all.R2 does not work on classes glm, mlm or rlm.")
-    if (length(model$xlevels) > 0) 
-        stop("model must not contain any factors!")
-    if (max(attr(model$terms, "order")) != 1) 
-        stop("model must not contain higher order terms")
-    ## length of coefficient vector
-    g <- length(coef(model))
+    if (!(is.matrix(covmat))) 
+        stop("ERROR: covmat must be a covariance matrix.")
+    if (!(ncol(covmat)==nrow(covmat))) 
+        stop("ERROR: covmat must be a square matrix.")
+    if (!all(eigen(covmat,TRUE,only.values=TRUE)$values>0)) 
+        stop("ERROR: covmat must be positive definite.")
+    ## number of regressors 
+    g <- ncol(covmat)-1
     ## check for admissible restrictions
     if (!(is.vector(index))) 
         stop("index must be a vector.")
@@ -33,50 +31,47 @@ all.R2 <- function (model, ui, ci = NULL, index = 2:length(coef(model)),
             paste(hilf$pivot, collapse = " "), ")."))
     ## check for feasibility
     ## and initialize storage vector for all R2s
-    if (!is.numeric(try(R2s <- rep(0, 2^(g - 1))))) 
+    if (!is.numeric(try(R2s <- rep(0, 2^g)))) 
         stop("too many regressors in model, function all.R2 needs more storage than is available")
     R2s[1] <- 0
-    R2s[2^(g - 1)] <- orlm(model, ui, ci = ci, index = index, 
-        meq = meq, tol = tol)$R2
+    R2s[2^g] <- orlm(covmat, ui, ci = ci, index = index, 
+        meq = meq, tol = tol, df.error=10)$R2
+                    ## df.error is irrelevant, but required by orlm
     ## prepare data for calculation of sub models
-    resp <- attr(model$terms, "response")
-    xcol <- which(rowSums(attr(model$terms, "factors")) > 0)
-    DATA <- as.data.frame(model$model[, c(resp, xcol)])
-    wt <- weights(model)
 
     ## initialize running index
     lauf <- 1
-    for (j in 1:(g - 2)) {
-        sets <- nchoosek(g - 1, j)
+    for (j in 1:(g - 1)) {
+        sets <- nchoosek(g, j)
         for (k in 1:ncol(sets)) {
         ## reduce model to these j regressors 
         ## reduce matrix ui accordingly
         ## run orlm on reduced model for R2
             lauf <- lauf + 1
-            datj <- DATA[, c(1, sets[, k] + 1)]
-            if (length(which((index - 1) %in% sets[, k])) > 0) {
-                uij <- matrix(ui[, which((index - 1) %in% sets[, 
-                  k])], nrow(ui), length(which((index - 1) %in% 
+            covj <- covmat[c(1, sets[, k] + 1), c(1, sets[, k] + 1)]
+            if (length(which((index-1) %in% sets[, k])) > 0) {
+                uij <- matrix(ui[, which((index-1) %in% sets[, 
+                  k])], nrow(ui), length(which((index-1) %in% 
                   sets[, k])))
-                indexj <- index[which((index - 1) %in% sets[, 
-                  k])]
-                indexj <- which(sets[, k] %in% (indexj - 1)) + 
-                  1
+                indexj <- index[which((index-1) %in% sets[, 
+                  k])] - 1
+                indexj <- which(sets[, k] %in% (indexj))
                 meqj <- 0
                 if (meq > 0) 
-                  meqj <- length(which((index[1:meq] - 1) %in% 
+                  meqj <- length(which((index[1:meq]-1) %in% 
                     sets[, k]))
                 hilf <- RREF(t(uij))
                 if (hilf$rank > 0) {
                   uij <- matrix(uij[hilf$pivot, ], hilf$rank, 
                     ncol(uij))
                   cij <- ci[hilf$pivot]
-                  R2s[lauf] <- orlm(lm(datj), uij, ci = cij, 
-                    index = indexj, meq = meqj, tol = tol)$R2
+                  R2s[lauf] <- orlm(covj, uij, ci = cij, 
+                    index = indexj+1, meq = meqj, tol = tol, df.error=10)$R2
+                    ## df.error is irrelevant, but required by orlm
                 }
-                else R2s[lauf] <- summary(lm(datj))$r.squared
+                else R2s[lauf] <- covj[1,-1]%*%solve(covj[-1,-1],covj[-1,1])/covj[1,1]
             }
-            else R2s[lauf] <- summary(lm(datj))$r.squared
+            else R2s[lauf] <- covj[1,-1]%*%solve(covj[-1,-1],covj[-1,1])/covj[1,1]
         }
     }
     R2s

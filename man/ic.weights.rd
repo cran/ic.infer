@@ -73,7 +73,10 @@ beta-distributions, respectively.
     
     Shapiro, A. (1988) Towards a unified theory of inequality-constrained 
     testing in multivariate analysis. \emph{International Statistical Review} 
-    \bold{56}, 49--62}
+    \bold{56}, 49--62
+    
+    Silvapulle, M.J. and Sen, P.K. (2004) \emph{Constrained Statistical Inference}. 
+    Wiley, New York}
 \author{ Ulrike Groemping, TFH Berlin }
 \seealso{ \code{\link{ic.test}}, \code{\link{orlm}}, \code{pmvnorm}, 
          \code{GenzBretz} }

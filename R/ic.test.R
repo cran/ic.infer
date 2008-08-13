@@ -22,13 +22,15 @@ ic.test <- function (obj, TP = 1, s2 = 1, df.error = Inf, ui0.11 = diag(rep(1,
     index <- obj$restr.index
     g <- length(b.restr)
     meq <- obj$meq
-    ## prevent long runs with late aborts because of too small memory
-    if (!is.numeric(try(matrix(0, floor((nrow(ui) - meq)/2), 
-        choose(nrow(ui) - meq, floor((nrow(ui) - meq)/2))), silent = TRUE))) 
+    ## prevent long runs with late aborts because of too low memory
+    if (nrow(ui) - meq - 2 > 2){
+      if (!is.numeric(try(matrix(0, floor((nrow(ui) - meq - 2)/2), 
+        choose(nrow(ui) - meq, floor((nrow(ui) - meq - 2)/2))), silent = TRUE))) 
         stop(paste("ic.test does not work, too many inequality restrictions in obj, \n", 
             "interim matrix with ", floor((nrow(ui) - meq)/2) * 
                 choose(nrow(ui) - meq, floor((nrow(ui) - meq)/2)), 
             "elements cannot be created", sep = ""))
+    }
     ## initialize for all TPs
     ## will later be modified for TP11
     ui.extra <- NULL

@@ -19,18 +19,24 @@ ic.weights <- function (corr, ...)
         g), sigma = solve(corr), ...)
     ## prevent lengthy calculations 
     ## if longest vector too long for available storage
-    if (!is.numeric(try(matrix(0, floor(g/2), choose(g, floor(g/2))), 
+    if (g > 4){
+    if (!is.numeric(try(matrix(0, floor((g-2)/2), choose(g, floor((g-2)/2))), 
         silent = TRUE))) 
         stop(paste("ic.weights will not work, corr too large, \n", 
-            "interim matrix with ", floor(g/2) * choose(g, floor(g/2)), 
+            "interim matrix with ", floor((g-2)/2) * choose(g, floor((g-2)/2)), 
             " elements cannot be created.", sep = ""))
-    if (g > 2) {
-        for (k in 1:floor((g - 1)/2)) {
+    }
+    if (g==2) weights[2] <- 1-sum(weights)
+    if (g==3) {
+        weights[2] <- 0.5 - weights[4]
+        weights[3] <- 0.5 - weights[1]
+    }
+    if (g > 3) {
+        for (k in 1:floor((g - 2)/2)) {
             ### fill weights simultaneously from top and bottom
-            ### for even g, fill middle by difference to 1
-            ### ??? potentially, possible with even better efficiency,
-            ###     because of conjecture that sums of even and odd weights 
-            ###     are 0.5 each; has not yet been confirmed (Silvapulle und Sen?)
+            ### fill the two middle weights by 0.5 - odd and even sum of others, 
+            ###     respectively, according to Silvapulle and Sen 2004, 
+            ###     Prop. 3.6.1, part 3
             jetzt <- nchoosek(g, k)
             wjetzt <- matrix(0, choose(g, k), 2)
             for (j in 1:(choose(g, k))) {
@@ -44,19 +50,47 @@ ic.weights <- function (corr, ...)
                   k), sigma = solve(corr[diese, diese]), ...) * 
                   pmvnorm(lower = rep(0, g - k), upper = rep(Inf, 
                     g - k), sigma = hilf, ...)
-                hilf <- corr[diese, diese] - corr[diese, andere] %*% 
-                  solve(corr[andere, andere], matrix(corr[andere, 
-                    diese], g - k, k))
-                wjetzt[j, 2] <- pmvnorm(lower = rep(0, g - k), 
-                  upper = rep(Inf, g - k), sigma = solve(corr[andere, 
-                    andere]), ...) * pmvnorm(lower = rep(0, k), 
-                  upper = rep(Inf, k), sigma = hilf, ...)
+                if (!k==(g-2)/2){
+                  ## needed for odd g only for the last one from top, 
+                  ## for even g calculated as 0.5 minus the other even weights
+                  hilf <- corr[diese, diese] - corr[diese, andere] %*% 
+                    solve(corr[andere, andere], matrix(corr[andere, 
+                      diese], g - k, k))
+                  wjetzt[j, 2] <- pmvnorm(lower = rep(0, g - k), 
+                    upper = rep(Inf, g - k), sigma = solve(corr[andere, 
+                      andere]), ...) * pmvnorm(lower = rep(0, k), 
+                    upper = rep(Inf, k), sigma = hilf, ...)
+                }
             }
             weights[k + 1] <- sum(wjetzt[, 1])
             weights[g + 1 - k] <- sum(wjetzt[, 2])
         }
+    ### fill last weight using sum of odd and even weights 
+    ### even weights in odd positions and vice versa
+    if (g/2 == floor(g/2)) {
+        even.sum <- sum(weights[1+2*((g/2):0)])
+        odd.sum <- sum(weights[2*((g/2):1)])
+        if (g/4 == floor(g/4)) {
+          weights[g/2 + 1] <- 0.5 - even.sum ## even weights
+          weights[g/2 + 2] <- 0.5 - odd.sum ## odd weights
+        }
+        else {
+          weights[g/2 + 1] <- 0.5 - odd.sum ## odd weights
+          weights[g/2 + 2] <- 0.5 - even.sum ## even weights
+        }
     }
-    if (g/2 == floor(g/2)) 
-        weights[g/2 + 1] <- 1 - sum(weights)
+    else {
+        even.sum <- sum(weights[2*(((g+1)/2):1)])
+        odd.sum <- sum(weights[2*(((g+1)/2):1)-1])
+        if ((g+1)/4 == floor((g+1)/4)) {
+          weights[(g + 1)/2] <- 0.5 - even.sum ## even weights
+          weights[(g + 3)/2] <- 0.5 - odd.sum ## odd weights
+        }
+        else {
+          weights[(g + 1)/2] <- 0.5 - odd.sum ## odd weights
+          weights[(g + 3)/2] <- 0.5 - even.sum ## even weights
+        }
+    }
+    }
     weights
 }

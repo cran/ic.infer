@@ -1,5 +1,7 @@
 \name{orlm}
 \alias{orlm}
+\alias{orlm.lm}
+\alias{orlm.default}
 \alias{boot.orlm}
 \alias{orlm.forboot.fixed}
 \alias{orlm.forboot}
@@ -7,8 +9,6 @@
 \alias{plot.orlm}
 \alias{print.orlm}
 \alias{summary.orlm}
-\alias{ic.infer}
-\alias{ic.infer-package}
 \title{ Functions for order restricted linear regression estimation and testing }
 \description{
 Function orlm calculates order-restricted linear models (linear equality and 
@@ -18,12 +18,15 @@ The remaining functions extract coefficients, provide a residual plot, give a
 short printout or a more extensive summary.
 }
 \usage{
-orlm(model, ui, ci, index = 2:length(coef(model)), meq = 0, 
+orlm(model, ui, ci, ...)
+\method{orlm}{lm}(model, ui, ci, index = 2:length(coef(model)), meq = 0, 
     orig.out = FALSE, boot = FALSE, B = 1000, fixed = FALSE, 
     tol = sqrt(.Machine$double.eps), ...)
+\method{orlm}{default}(model, ui, ci, index = NULL, meq = 0, 
+    tol = sqrt(.Machine$double.eps), df.error = NULL, ...)
 boot.orlm(model, B = 1000, fixed = FALSE, ui, ci, index, meq)
 orlm.forboot.fixed(data, indices, ...)
-orlm.forboot(data, indices, ...)
+orlm.forboot(data, indices, index = index, ...)
 \method{coef}{orlm}(object, \dots)
 \method{plot}{orlm}(x, caption = "Residuals vs Fitted", 
         panel = if (add.smooth) panel.smooth else points, sub.caption = NULL, 
@@ -37,7 +40,12 @@ orlm.forboot(data, indices, ...)
         bootCIs = TRUE, bty = "perc", level = 0.95, \dots)
 }
 \arguments{
-  \item{model}{ a linear model object (class \code{lm}) with data included }
+  \item{model}{ a linear model object (class \code{lm}) with data included 
+  
+  OR
+  
+  a covariance matrix of Y and all regressors (in this order)
+  }
   \item{ui}{ matrix (or vector in case of one single restriction only) 
              defining the left-hand side of the restriction 
                
@@ -91,6 +99,11 @@ orlm.forboot(data, indices, ...)
   \item{indices}{ indices for sampling }
   \item{tol}{numerical tolerance value; 
              estimates closer to 0 than \code{tol} are set to exactly 0}
+  \item{df.error}{ error degrees of freedom (number of observations minus 
+              number of colummns of covariance matrix) for \code{orlm.default};
+              required in order to calculate adequate covariance matrix and tests; 
+              valid coefficient estimates can also be obtained for arbitrary 
+              values of \code{df.error}  }
   \item{\dots}{ Further options  }
   \item{object}{object of class \code{orlm} (created by function \code{orlm})}
   \item{x}{object of class \code{orlm} (created by function \code{orlm})}
@@ -131,6 +144,11 @@ Functions \code{coef.orlm}, \code{plot.orlm}, \code{print.orlm}, and
 of S3 class orlm. The functions directly referring to bootstrapping are internal 
 and should not be called by the user but are called from within function \code{orlm} 
 if option \code{boot} is set to \code{TRUE}.
+
+Of course, bootstrapping is not possible, if function \code{orlm} is applied 
+to a covariance matrix, since the raw data are not available in this case. Also 
+note that the intercept is not estimated in this case but can easily be estimated 
+from the resulting estimate if the variable means are known (cf. example).
 
 The output from summary.orlm provides information about the restrictions, 
 a comparison of $R^2$-values for unrestricted and restricted model, 

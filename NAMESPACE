@@ -1,3 +1,4 @@
      import(quadprog, mvtnorm, boot)
      export("orlm", "coef.orlm", "ic.est", "ic.test", "ic.weights", "summary.orlm", "summary.ict",
-            "pchibar", "pbetabar","plot.orlm","print.ict","print.orest","print.orlm","or.relimp","all.R2")
+            "pchibar", "pbetabar","plot.orlm","print.ict","print.orest","print.orlm","or.relimp","all.R2",
+            "orlm.default","orlm.lm","or.relimp.default","or.relimp.lm")

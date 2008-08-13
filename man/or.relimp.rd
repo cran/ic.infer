@@ -1,5 +1,7 @@
 \name{or.relimp}
 \alias{or.relimp}
+\alias{or.relimp.lm}
+\alias{or.relimp.default}
 \alias{all.R2}
 %- Also NEED an '\\alias' for EACH other topic documented here.
 
@@ -16,18 +18,28 @@
 }
 
 \usage{
-or.relimp(model, ui, ci = NULL, index = 2:length(coef(model)), meq = 0, 
+or.relimp(model, ui, ci = NULL, ...)
+\method{or.relimp}{lm}(model, ui, ci = NULL, index = 2:length(coef(model)), meq = 0, 
      tol = sqrt(.Machine$double.eps), ...)
      
-all.R2(model, ui, ci = NULL, index = 2:length(coef(model)), meq = 0, 
+\method{or.relimp}{default}(model, ui, ci = NULL, index = 2:ncol(model), meq = 0, 
      tol = sqrt(.Machine$double.eps), ...)
+     
+all.R2(covmat, ui, ci = NULL, index = 2:ncol(covmat), meq = 0, 
+     tol = sqrt(.Machine$double.eps), ...)
+     ## user does not need to call this function
 }
 
 \arguments{
 \item{model}{ a linear model object of class \code{lm} with data included; 
-            for functions \code{all.R2} and \code{or.relimp}, 
+            for function \code{or.relimp}, 
             all explanatory variables must be numeric (i.e. no factors), 
-            and higher-order terms (e.g. interactions) are not permitted. }
+            and higher-order terms (e.g. interactions) are not permitted. 
+            
+            OR
+            
+            the covariance matrix of the response (first position) and all regressors}
+\item{covmat}{ the covariance matrix of the response (first position) and all regressors}
 \item{ui}{ cf. explanation in \code{link{orlm}};
            cf. also details below }
 \item{ci}{ cf. explanation in \code{link{orlm}} }
@@ -74,16 +86,20 @@ contributions from all models with respective subset of restrictions
     \code{calc.relimp} from \code{R}-package \code{relaimpo} for a much more 
     comfortable and much faster routine for unrestricted linear models}
 \examples{
-limo <- lm(swiss)
+covswiss <- cov(swiss)
 ## all R2-values for restricted linear model with restrictions that
 ## Catholic and Infant.Mortality have non-negative coefficients
-R2s <- all.R2(limo, ui=rbind(c(0,0,0,1,0),c(0,0,0,0,1)))
+R2s <- all.R2(covswiss, ui=rbind(c(0,0,0,1,0),c(0,0,0,0,1)))
 R2s
 
 Shapley.value(set.func(R2s))  ## directly using package kappalab
 
-or.relimp(limo, ui=rbind(c(0,0,0,1,0),c(0,0,0,0,1)))
-    ### with convenience wrapper from this package
+### with convenience wrapper from this package
+or.relimp(covswiss, ui=rbind(c(0,0,0,1,0),c(0,0,0,0,1)))
+
+### also works on linear models
+limo <- lm(swiss)
+#or.relimp(limo, ui=rbind(c(0,0,0,1,0),c(0,0,0,0,1)))
 
 ## same model using index vector
 or.relimp(limo, ui=rbind(c(1,0),c(0,1)), index=5:6)
