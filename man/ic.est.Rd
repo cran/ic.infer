@@ -12,7 +12,7 @@ degrees of detail.
 ic.est(x, Sigma, ui, ci = NULL, index = 1:nrow(Sigma), meq = 0, 
             tol = sqrt(.Machine$double.eps))
 \method{print}{orest}(x, digits = max(3, getOption("digits") - 3), scientific = FALSE, \dots)
-\method{summary}{orest}(x, display.unrestr = FALSE, brief = FALSE, 
+\method{summary}{orest}(object, display.unrestr = FALSE, brief = FALSE, 
             digits = max(3, getOption("digits") - 3), scientific = FALSE, \dots)
 }
 \arguments{
@@ -21,6 +21,9 @@ ic.est(x, Sigma, ui, ci = NULL, index = 1:nrow(Sigma), meq = 0,
             (and perhaps equality) restrictions is to be estimated 
             
             for \code{print.orest}: object of class \code{orest} 
+            (normally produced by \code{ic.est} or \code{orlm})}
+  \item{object}{ for \code{summary.orest}: 
+            object of class \code{orest} 
             (normally produced by \code{ic.est} or \code{orlm})}
   \item{Sigma}{ covariance or correlation matrix (or any multiple thereof) 
             of \code{x} }
@@ -56,7 +59,7 @@ ic.est(x, Sigma, ui, ci = NULL, index = 1:nrow(Sigma), meq = 0,
   \item{scientific}{ if \code{FALSE}, suppresses scientific representation of 
               numbers (default: \code{FALSE}) }
   \item{\dots}{ further arguments to \code{print} }
-  \item{display.unrestr}{ if TRUE, unrestricted estimate (i.e. \code{x}) is also displayed }
+  \item{display.unrestr}{ if TRUE, unrestricted estimate (i.e. \code{object}) is also displayed }
   \item{brief}{ if \code{TRUE}, suppress printing of restrictions; 
        default: \code{FALSE}}
 }

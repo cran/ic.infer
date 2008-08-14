@@ -7,6 +7,8 @@ plot.orlm <- function (x, caption = "Residuals vs Fitted",
     ## adapted from plot.lm
     if (!inherits(x, "orlm")) 
         stop("use only with \"orlm\" objects")
+    if (is.null(x$residuals)) 
+        stop("plot only works on orlm objects that contain residuals and fitted values")
     isGlm <- inherits(x, "orglm")
     r <- x$residuals
     yh <- x$fitted.values
