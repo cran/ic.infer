@@ -7,7 +7,7 @@ ic.test <- function (obj, TP = 1, s2 = 1, df.error = Inf, ui0.11 = diag(rep(1,
     cov <- obj$Sigma
     ## make this case equal to fixed sigma case (later multiplied again)
     if ("orlm" %in% class(obj)) { 
-        df.error < obj$df.error 
+        df.error <- obj$df.error 
         s2 <- obj$s2
         cov <- obj$Sigma/s2    ## calculation of test statistic requires
                                ## unscaled covariance matrix 

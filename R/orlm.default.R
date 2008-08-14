@@ -6,7 +6,7 @@ orlm.default <- function (model, ui, ci = NULL, index = NULL,
         stop("ERROR: model must be of class lm or a covariance matrix.")
     else
     if (!(nrow(model)==ncol(model)))
-        stop("ERROR: matrix model must be quadratic.")
+        stop("ERROR: If it is not a linear model, model must be a quadratic matrix.")
     else 
     if (!(all(eigen(model,TRUE,only.values=TRUE)$values>0)))
         stop("ERROR: matrix model must be positive definite.")

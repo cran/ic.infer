@@ -6,13 +6,13 @@ or.relimp.default <- function(model, ui, ci = NULL, index = 2:ncol(model),
         stop("ERROR: model must be of class lm or a covariance matrix.")
     else
     if (!(nrow(model)==ncol(model)))
-        stop("ERROR: matrix model must be quadratic.")
+        stop("ERROR: If it is not a linear model, model must be a quadratic matrix.")
     else 
     if (!(all(eigen(model,TRUE,only.values=TRUE)$values>0)))
         stop("ERROR: matrix model must be positive definite.")
     
     namen <- colnames(model)
-    if (is.null(namen)) namen <- c("y",paste("X",1:(ncol(matrix)-1),sep=""))
+    if (is.null(namen)) namen <- c("y",paste("X",1:(ncol(model)-1),sep=""))
     
     ## work is done by functions all.R2 from this package 
     ## and function Shapley.value from package kappalab

@@ -1,0 +1,754 @@
+
+R version 2.7.1 (2008-06-23)
+Copyright (C) 2008 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(ic.infer)
+Loading required package: quadprog
+Loading required package: mvtnorm
+Loading required package: boot
+Loading required package: kappalab
+Loading required package: lpSolve
+Loading required package: kernlab
+> 
+> mat <- as.matrix(swiss)
+> colnames(mat) <- NULL
+> covmat <- cov(swiss)
+> linmod <- lm(swiss)
+> linmodwt <- lm(swiss,weights=abs(-23:23))
+> linmodfac <- lm(1/time~poison+treat+poison:treat,poisons)
+> 
+> ## test weights by simulation
+> ## check normal functionality for covariance matrix
+> orlm1 <- orlm(covmat,ui=diag(c(-1,1,-1,1,1)),df.error=41)
+> summary(orlm1)
+Order-restricted linear model with restrictions of coefficients of 
+Agriculture Examination Education Catholic Infant.Mortality 
+
+
+ Inequality restrictions:
+     Agriculture Examination Education Catholic Infant.Mortality            
+1:   -1          0           0         0        0                %*%colnames
+2: A 0           1           0         0        0                %*%colnames
+3:   0           0           -1        0        0                %*%colnames
+4:   0           0           0         1        0                %*%colnames
+5:   0           0           0         0        1                %*%colnames
+         
+1:  >=  0
+2:  >=  0
+3:  >=  0
+4:  >=  0
+5:  >=  0
+
+ Note: Restrictions marked with A are active. 
+
+
+Restricted model: R2 reduced from 0.706735 to 0.6993476 
+
+
+Coefficients from order-restricted model: 
+     R Agriculture      R Examination        R Education         R Catholic 
+        -0.1546175          0.0000000         -0.9802638          0.1246664 
+R Infant.Mortality 
+         1.0784422 
+
+ Note: Coefficients marked with R are involved in restrictions. 
+
+
+Hypothesis Tests ( 41 error degrees of freedom ): 
+Overall model test under the order restrictions: 
+       Test statistic: 0.7045524,   p-value: <0.0001
+
+Type 1 Test: H0: all restrictions active(=) 
+         vs. H1: at least one restriction strictly true (>) 
+       Test statistic: 0.7045524,   p-value: <0.0001
+Type 2 Test: H0: all restrictions true 
+         vs. H1: at least one restriction false 
+       Test statistic: 0.02457129,   p-value: 0.5747
+Type 3 Test: H0: at least one restriction false or active (=) 
+         vs. H1: all restrictions strictly true (>) 
+       Test statistic: -1.016268,   p-value: 0.8423
+
+Type 3 test based on t-distribution (one-sided), 
+all other tests based on mixture of beta distributions
+
+> ic.test(orlm1)
+
+Order-related hypothesis test:
+  Test problem  Test statistic         p-value  
+             1          0.7046         <0.0001  
+
+> 
+> ## check normal functionality for unnamed covariance matrix
+> covmat2 <- cov(mat)
+> orlm1 <- orlm(covmat2,ui=diag(c(-1,1,-1,1,1)),df.error=41)
+> summary(orlm1)
+Order-restricted linear model with restrictions of coefficients of 
+X1 X2 X3 X4 X5 
+
+
+ Inequality restrictions:
+     X1 X2 X3 X4 X5                   
+1:   -1 0  0  0  0  %*%colnames  >=  0
+2: A 0  1  0  0  0  %*%colnames  >=  0
+3:   0  0  -1 0  0  %*%colnames  >=  0
+4:   0  0  0  1  0  %*%colnames  >=  0
+5:   0  0  0  0  1  %*%colnames  >=  0
+
+ Note: Restrictions marked with A are active. 
+
+
+Restricted model: R2 reduced from 0.706735 to 0.6993476 
+
+
+Coefficients from order-restricted model: 
+      R X1       R X2       R X3       R X4       R X5 
+-0.1546175  0.0000000 -0.9802638  0.1246664  1.0784422 
+
+ Note: Coefficients marked with R are involved in restrictions. 
+
+
+Hypothesis Tests ( 41 error degrees of freedom ): 
+Overall model test under the order restrictions: 
+       Test statistic: 0.7045524,   p-value: <0.0001
+
+Type 1 Test: H0: all restrictions active(=) 
+         vs. H1: at least one restriction strictly true (>) 
+       Test statistic: 0.7045524,   p-value: <0.0001
+Type 2 Test: H0: all restrictions true 
+         vs. H1: at least one restriction false 
+       Test statistic: 0.02457129,   p-value: 0.5747
+Type 3 Test: H0: at least one restriction false or active (=) 
+         vs. H1: all restrictions strictly true (>) 
+       Test statistic: -1.016268,   p-value: 0.8423
+
+Type 3 test based on t-distribution (one-sided), 
+all other tests based on mixture of beta distributions
+
+> ic.test(orlm1)
+
+Order-related hypothesis test:
+  Test problem  Test statistic         p-value  
+             1          0.7046         <0.0001  
+
+> 
+> ## additionally, bootstrap confidence intervals
+> ## check normal functionality for linear model
+> orlm1 <- orlm(linmod,ui=diag(c(-1,1,-1,1,1)))
+> summary(orlm1)
+Order-restricted linear model with restrictions of coefficients of 
+Agriculture Examination Education Catholic Infant.Mortality 
+
+
+ Inequality restrictions:
+     Agriculture Examination Education Catholic Infant.Mortality            
+1:   -1          0           0         0        0                %*%colnames
+2: A 0           1           0         0        0                %*%colnames
+3:   0           0           -1        0        0                %*%colnames
+4:   0           0           0         1        0                %*%colnames
+5:   0           0           0         0        1                %*%colnames
+         
+1:  >=  0
+2:  >=  0
+3:  >=  0
+4:  >=  0
+5:  >=  0
+
+ Note: Restrictions marked with A are active. 
+
+
+Restricted model: R2 reduced from 0.706735 to 0.6993476 
+
+
+Coefficients from order-restricted model: 
+       (Intercept)      R Agriculture      R Examination        R Education 
+        62.1013116         -0.1546175          0.0000000         -0.9802638 
+        R Catholic R Infant.Mortality 
+         0.1246664          1.0784422 
+
+ Note: Coefficients marked with R are involved in restrictions. 
+
+
+Hypothesis Tests ( 41 error degrees of freedom ): 
+Overall model test under the order restrictions: 
+       Test statistic: 0.7045524,   p-value: <0.0001
+
+Type 1 Test: H0: all restrictions active(=) 
+         vs. H1: at least one restriction strictly true (>) 
+       Test statistic: 0.7045524,   p-value: <0.0001
+Type 2 Test: H0: all restrictions true 
+         vs. H1: at least one restriction false 
+       Test statistic: 0.02457129,   p-value: 0.5747
+Type 3 Test: H0: at least one restriction false or active (=) 
+         vs. H1: all restrictions strictly true (>) 
+       Test statistic: -1.016268,   p-value: 0.8423
+
+Type 3 test based on t-distribution (one-sided), 
+all other tests based on mixture of beta distributions
+
+> ic.test(orlm1)
+
+Order-related hypothesis test:
+  Test problem  Test statistic         p-value  
+             1          0.7046         <0.0001  
+
+> orlm1b <- orlm(linmod,ui=diag(c(-1,1,-1,1,1)),boot=TRUE,B=100)
+> summary(orlm1b)
+Order-restricted linear model with restrictions of coefficients of 
+Agriculture Examination Education Catholic Infant.Mortality 
+
+
+ Inequality restrictions:
+     Agriculture Examination Education Catholic Infant.Mortality            
+1:   -1          0           0         0        0                %*%colnames
+2: A 0           1           0         0        0                %*%colnames
+3:   0           0           -1        0        0                %*%colnames
+4:   0           0           0         1        0                %*%colnames
+5:   0           0           0         0        1                %*%colnames
+         
+1:  >=  0
+2:  >=  0
+3:  >=  0
+4:  >=  0
+5:  >=  0
+
+ Note: Restrictions marked with A are active. 
+
+
+Restricted model: R2 reduced from 0.706735 to 0.6993476 
+
+
+Coefficients from order-restricted model
+with 95 pct bootstrap confidence intervals( perc ): 
+                   Coeff.      Lower       Upper      
+  (Intercept)      62.10131156 44.40852185 81.46696254
+R Agriculture      -0.15461749 -0.29470988 -0.03140204
+R Examination       0.00000000  0.00000000  0.26566728
+R Education        -0.98026383 -1.36105868 -0.62324652
+R Catholic          0.12466639  0.07068388  0.19188819
+R Infant.Mortality  1.07844217  0.40262274  1.83989952
+
+ Note: Coefficients marked with R are involved in restrictions. 
+
+
+Hypothesis Tests ( 41 error degrees of freedom ): 
+Overall model test under the order restrictions: 
+       Test statistic: 0.7045524,   p-value: <0.0001
+
+Type 1 Test: H0: all restrictions active(=) 
+         vs. H1: at least one restriction strictly true (>) 
+       Test statistic: 0.7045524,   p-value: <0.0001
+Type 2 Test: H0: all restrictions true 
+         vs. H1: at least one restriction false 
+       Test statistic: 0.02457129,   p-value: 0.5747
+Type 3 Test: H0: at least one restriction false or active (=) 
+         vs. H1: all restrictions strictly true (>) 
+       Test statistic: -1.016268,   p-value: 0.8423
+
+Type 3 test based on t-distribution (one-sided), 
+all other tests based on mixture of beta distributions
+
+> ic.test(orlm1b)
+
+Order-related hypothesis test:
+  Test problem  Test statistic         p-value  
+             1          0.7046         <0.0001  
+
+> orlm1bf <- orlm(linmod,ui=diag(c(-1,1,-1,1,1)),boot=TRUE,fixed=TRUE,B=100)
+> summary(orlm1bf)
+Order-restricted linear model with restrictions of coefficients of 
+Agriculture Examination Education Catholic Infant.Mortality 
+
+
+ Inequality restrictions:
+     Agriculture Examination Education Catholic Infant.Mortality            
+1:   -1          0           0         0        0                %*%colnames
+2: A 0           1           0         0        0                %*%colnames
+3:   0           0           -1        0        0                %*%colnames
+4:   0           0           0         1        0                %*%colnames
+5:   0           0           0         0        1                %*%colnames
+         
+1:  >=  0
+2:  >=  0
+3:  >=  0
+4:  >=  0
+5:  >=  0
+
+ Note: Restrictions marked with A are active. 
+
+
+Restricted model: R2 reduced from 0.706735 to 0.6993476 
+
+
+Coefficients from order-restricted model
+with 95 pct bootstrap confidence intervals( perc ): 
+                   Coeff.      Lower       Upper      
+  (Intercept)      62.10131156 43.94836421 78.24858599
+R Agriculture      -0.15461749 -0.27981946 -0.05640154
+R Examination       0.00000000  0.00000000  0.20440400
+R Education        -0.98026383 -1.30218116 -0.76923010
+R Catholic          0.12466639  0.07245870  0.18760042
+R Infant.Mortality  1.07844217  0.42584806  1.79460613
+
+ Note: Coefficients marked with R are involved in restrictions. 
+
+
+Hypothesis Tests ( 41 error degrees of freedom ): 
+Overall model test under the order restrictions: 
+       Test statistic: 0.7045524,   p-value: <0.0001
+
+Type 1 Test: H0: all restrictions active(=) 
+         vs. H1: at least one restriction strictly true (>) 
+       Test statistic: 0.7045524,   p-value: <0.0001
+Type 2 Test: H0: all restrictions true 
+         vs. H1: at least one restriction false 
+       Test statistic: 0.02457129,   p-value: 0.5747
+Type 3 Test: H0: at least one restriction false or active (=) 
+         vs. H1: all restrictions strictly true (>) 
+       Test statistic: -1.016268,   p-value: 0.8423
+
+Type 3 test based on t-distribution (one-sided), 
+all other tests based on mixture of beta distributions
+
+> ic.test(orlm1bf)
+
+Order-related hypothesis test:
+  Test problem  Test statistic         p-value  
+             1          0.7046         <0.0001  
+
+> 
+> ## check normal functionality for linear model of unnamed data
+> linmod2 <- lm(as.data.frame(mat))
+> orlm1 <- orlm(linmod2,ui=diag(c(-1,1,-1,1,1)))
+> summary(orlm1)
+Order-restricted linear model with restrictions of coefficients of 
+V2 V3 V4 V5 V6 
+
+
+ Inequality restrictions:
+     V2 V3 V4 V5 V6                   
+1:   -1 0  0  0  0  %*%colnames  >=  0
+2: A 0  1  0  0  0  %*%colnames  >=  0
+3:   0  0  -1 0  0  %*%colnames  >=  0
+4:   0  0  0  1  0  %*%colnames  >=  0
+5:   0  0  0  0  1  %*%colnames  >=  0
+
+ Note: Restrictions marked with A are active. 
+
+
+Restricted model: R2 reduced from 0.706735 to 0.6993476 
+
+
+Coefficients from order-restricted model: 
+  (Intercept)          R V2          R V3          R V4          R V5 
+   62.1013116    -0.1546175     0.0000000    -0.9802638     0.1246664 
+         R V6 
+    1.0784422 
+
+ Note: Coefficients marked with R are involved in restrictions. 
+
+
+Hypothesis Tests ( 41 error degrees of freedom ): 
+Overall model test under the order restrictions: 
+       Test statistic: 0.7045524,   p-value: <0.0001
+
+Type 1 Test: H0: all restrictions active(=) 
+         vs. H1: at least one restriction strictly true (>) 
+       Test statistic: 0.7045524,   p-value: <0.0001
+Type 2 Test: H0: all restrictions true 
+         vs. H1: at least one restriction false 
+       Test statistic: 0.02457129,   p-value: 0.5747
+Type 3 Test: H0: at least one restriction false or active (=) 
+         vs. H1: all restrictions strictly true (>) 
+       Test statistic: -1.016268,   p-value: 0.8423
+
+Type 3 test based on t-distribution (one-sided), 
+all other tests based on mixture of beta distributions
+
+> ic.test(orlm1)
+
+Order-related hypothesis test:
+  Test problem  Test statistic         p-value  
+             1          0.7046         <0.0001  
+
+> orlm1b <- orlm(linmod2,ui=diag(c(-1,1,-1,1,1)),boot=TRUE,B=100)
+> summary(orlm1b)
+Order-restricted linear model with restrictions of coefficients of 
+V2 V3 V4 V5 V6 
+
+
+ Inequality restrictions:
+     V2 V3 V4 V5 V6                   
+1:   -1 0  0  0  0  %*%colnames  >=  0
+2: A 0  1  0  0  0  %*%colnames  >=  0
+3:   0  0  -1 0  0  %*%colnames  >=  0
+4:   0  0  0  1  0  %*%colnames  >=  0
+5:   0  0  0  0  1  %*%colnames  >=  0
+
+ Note: Restrictions marked with A are active. 
+
+
+Restricted model: R2 reduced from 0.706735 to 0.6993476 
+
+
+Coefficients from order-restricted model
+with 95 pct bootstrap confidence intervals( perc ): 
+              Coeff.      Lower       Upper      
+  (Intercept) 62.10131156 36.30118872 78.09714768
+R V2          -0.15461749 -0.31807962 -0.01498542
+R V3           0.00000000  0.00000000  0.39622562
+R V4          -0.98026383 -1.34050522 -0.50511089
+R V5           0.12466639  0.07442799  0.18317567
+R V6           1.07844217  0.33935862  2.13688162
+
+ Note: Coefficients marked with R are involved in restrictions. 
+
+
+Hypothesis Tests ( 41 error degrees of freedom ): 
+Overall model test under the order restrictions: 
+       Test statistic: 0.7045524,   p-value: <0.0001
+
+Type 1 Test: H0: all restrictions active(=) 
+         vs. H1: at least one restriction strictly true (>) 
+       Test statistic: 0.7045524,   p-value: <0.0001
+Type 2 Test: H0: all restrictions true 
+         vs. H1: at least one restriction false 
+       Test statistic: 0.02457129,   p-value: 0.5748
+Type 3 Test: H0: at least one restriction false or active (=) 
+         vs. H1: all restrictions strictly true (>) 
+       Test statistic: -1.016268,   p-value: 0.8423
+
+Type 3 test based on t-distribution (one-sided), 
+all other tests based on mixture of beta distributions
+
+> ic.test(orlm1b)
+
+Order-related hypothesis test:
+  Test problem  Test statistic         p-value  
+             1          0.7046         <0.0001  
+
+> orlm1bf <- orlm(linmod2,ui=diag(c(-1,1,-1,1,1)),boot=TRUE,fixed=TRUE,B=100)
+> summary(orlm1bf)
+Order-restricted linear model with restrictions of coefficients of 
+V2 V3 V4 V5 V6 
+
+
+ Inequality restrictions:
+     V2 V3 V4 V5 V6                   
+1:   -1 0  0  0  0  %*%colnames  >=  0
+2: A 0  1  0  0  0  %*%colnames  >=  0
+3:   0  0  -1 0  0  %*%colnames  >=  0
+4:   0  0  0  1  0  %*%colnames  >=  0
+5:   0  0  0  0  1  %*%colnames  >=  0
+
+ Note: Restrictions marked with A are active. 
+
+
+Restricted model: R2 reduced from 0.706735 to 0.6993476 
+
+
+Coefficients from order-restricted model
+with 95 pct bootstrap confidence intervals( perc ): 
+              Coeff.      Lower       Upper      
+  (Intercept) 62.10131156 45.45906206 79.31016910
+R V2          -0.15461749 -0.33239331 -0.03178618
+R V3           0.00000000  0.00000000  0.31557425
+R V4          -0.98026383 -1.27624849 -0.75812894
+R V5           0.12466639  0.07954139  0.17804477
+R V6           1.07844217  0.36537219  1.61455629
+
+ Note: Coefficients marked with R are involved in restrictions. 
+
+
+Hypothesis Tests ( 41 error degrees of freedom ): 
+Overall model test under the order restrictions: 
+       Test statistic: 0.7045524,   p-value: <0.0001
+
+Type 1 Test: H0: all restrictions active(=) 
+         vs. H1: at least one restriction strictly true (>) 
+       Test statistic: 0.7045524,   p-value: <0.0001
+Type 2 Test: H0: all restrictions true 
+         vs. H1: at least one restriction false 
+       Test statistic: 0.02457129,   p-value: 0.5747
+Type 3 Test: H0: at least one restriction false or active (=) 
+         vs. H1: all restrictions strictly true (>) 
+       Test statistic: -1.016268,   p-value: 0.8423
+
+Type 3 test based on t-distribution (one-sided), 
+all other tests based on mixture of beta distributions
+
+> ic.test(orlm1bf)
+
+Order-related hypothesis test:
+  Test problem  Test statistic         p-value  
+             1          0.7046         <0.0001  
+
+> 
+> ## check normal functionality for weighted linear model
+> orlm1 <- orlm(linmodwt,ui=diag(c(-1,1,-1,1,1)))
+> summary(orlm1)
+Order-restricted linear model with restrictions of coefficients of 
+Agriculture Examination Education Catholic Infant.Mortality 
+
+
+ Inequality restrictions:
+     Agriculture Examination Education Catholic Infant.Mortality            
+1:   -1          0           0         0        0                %*%colnames
+2: A 0           1           0         0        0                %*%colnames
+3:   0           0           -1        0        0                %*%colnames
+4:   0           0           0         1        0                %*%colnames
+5:   0           0           0         0        1                %*%colnames
+         
+1:  >=  0
+2:  >=  0
+3:  >=  0
+4:  >=  0
+5:  >=  0
+
+ Note: Restrictions marked with A are active. 
+
+
+Restricted model: R2 reduced from 0.7400627 to 0.7340304 
+
+
+Coefficients from order-restricted model: 
+       (Intercept)      R Agriculture      R Examination        R Education 
+       63.04003588        -0.12758055         0.00000000        -1.04869971 
+        R Catholic R Infant.Mortality 
+        0.09597652         1.12865481 
+
+ Note: Coefficients marked with R are involved in restrictions. 
+
+
+Hypothesis Tests ( 40 error degrees of freedom ): 
+Overall model test under the order restrictions: 
+       Test statistic: 0.7384851,   p-value: <0.0001
+
+Type 1 Test: H0: all restrictions active(=) 
+         vs. H1: at least one restriction strictly true (>) 
+       Test statistic: 0.7384851,   p-value: <0.0001
+Type 2 Test: H0: all restrictions true 
+         vs. H1: at least one restriction false 
+       Test statistic: 0.02268021,   p-value: 0.6105
+Type 3 Test: H0: at least one restriction false or active (=) 
+         vs. H1: all restrictions strictly true (>) 
+       Test statistic: -0.9634633,   p-value: 0.8294
+
+Type 3 test based on t-distribution (one-sided), 
+all other tests based on mixture of beta distributions
+
+> ic.test(orlm1)
+
+Order-related hypothesis test:
+  Test problem  Test statistic         p-value  
+             1          0.7385         <0.0001  
+
+> orlm1b <- orlm(linmodwt,ui=diag(c(-1,1,-1,1,1)),boot=TRUE,B=100)
+> summary(orlm1b)
+Order-restricted linear model with restrictions of coefficients of 
+Agriculture Examination Education Catholic Infant.Mortality 
+
+
+ Inequality restrictions:
+     Agriculture Examination Education Catholic Infant.Mortality            
+1:   -1          0           0         0        0                %*%colnames
+2: A 0           1           0         0        0                %*%colnames
+3:   0           0           -1        0        0                %*%colnames
+4:   0           0           0         1        0                %*%colnames
+5:   0           0           0         0        1                %*%colnames
+         
+1:  >=  0
+2:  >=  0
+3:  >=  0
+4:  >=  0
+5:  >=  0
+
+ Note: Restrictions marked with A are active. 
+
+
+Restricted model: R2 reduced from 0.7400627 to 0.7340304 
+
+
+Coefficients from order-restricted model
+with 95 pct bootstrap confidence intervals( perc ): 
+                   Coeff.      Lower       Upper      
+  (Intercept)      63.04003588 38.19778763 87.91201372
+R Agriculture      -0.12758055 -0.33417945  0.00000000
+R Examination       0.00000000  0.00000000  0.28965073
+R Education        -1.04869971 -1.52677332 -0.53305304
+R Catholic          0.09597652  0.03179686  0.15740315
+R Infant.Mortality  1.12865481  0.00000000  2.36747603
+
+ Note: Coefficients marked with R are involved in restrictions. 
+
+
+Hypothesis Tests ( 40 error degrees of freedom ): 
+Overall model test under the order restrictions: 
+       Test statistic: 0.7384851,   p-value: <0.0001
+
+Type 1 Test: H0: all restrictions active(=) 
+         vs. H1: at least one restriction strictly true (>) 
+       Test statistic: 0.7384851,   p-value: <0.0001
+Type 2 Test: H0: all restrictions true 
+         vs. H1: at least one restriction false 
+       Test statistic: 0.02268021,   p-value: 0.6105
+Type 3 Test: H0: at least one restriction false or active (=) 
+         vs. H1: all restrictions strictly true (>) 
+       Test statistic: -0.9634633,   p-value: 0.8294
+
+Type 3 test based on t-distribution (one-sided), 
+all other tests based on mixture of beta distributions
+
+> ic.test(orlm1b)
+
+Order-related hypothesis test:
+  Test problem  Test statistic         p-value  
+             1          0.7385         <0.0001  
+
+> orlm1bf <- orlm(linmodwt,ui=diag(c(-1,1,-1,1,1)),boot=TRUE,fixed=TRUE,B=100)
+> summary(orlm1bf)
+Order-restricted linear model with restrictions of coefficients of 
+Agriculture Examination Education Catholic Infant.Mortality 
+
+
+ Inequality restrictions:
+     Agriculture Examination Education Catholic Infant.Mortality            
+1:   -1          0           0         0        0                %*%colnames
+2: A 0           1           0         0        0                %*%colnames
+3:   0           0           -1        0        0                %*%colnames
+4:   0           0           0         1        0                %*%colnames
+5:   0           0           0         0        1                %*%colnames
+         
+1:  >=  0
+2:  >=  0
+3:  >=  0
+4:  >=  0
+5:  >=  0
+
+ Note: Restrictions marked with A are active. 
+
+
+Restricted model: R2 reduced from 0.7400627 to 0.7340304 
+
+
+Coefficients from order-restricted model
+with 95 pct bootstrap confidence intervals( perc ): 
+                   Coeff.       Lower        Upper       
+  (Intercept)      63.040035883 43.687666132 81.670827961
+R Agriculture      -0.127580549 -0.277890748 -0.002340573
+R Examination       0.000000000  0.000000000  0.144298809
+R Education        -1.048699711 -1.355435612 -0.824357365
+R Catholic          0.095976516  0.041142302  0.153552610
+R Infant.Mortality  1.128654808  0.507242366  1.808104823
+
+ Note: Coefficients marked with R are involved in restrictions. 
+
+
+Hypothesis Tests ( 40 error degrees of freedom ): 
+Overall model test under the order restrictions: 
+       Test statistic: 0.7384851,   p-value: <0.0001
+
+Type 1 Test: H0: all restrictions active(=) 
+         vs. H1: at least one restriction strictly true (>) 
+       Test statistic: 0.7384851,   p-value: <0.0001
+Type 2 Test: H0: all restrictions true 
+         vs. H1: at least one restriction false 
+       Test statistic: 0.02268021,   p-value: 0.6105
+Type 3 Test: H0: at least one restriction false or active (=) 
+         vs. H1: all restrictions strictly true (>) 
+       Test statistic: -0.9634633,   p-value: 0.8294
+
+Type 3 test based on t-distribution (one-sided), 
+all other tests based on mixture of beta distributions
+
+> ic.test(orlm1bf)
+
+Order-related hypothesis test:
+  Test problem  Test statistic         p-value  
+             1          0.7385         <0.0001  
+
+> 
+> ## check normal functionality for linear model with factors 
+> ## and interactions
+> orlm1 <- orlm(linmodfac,ui=diag(c(1,1,1,-1,-1)),index=2:6)
+> orlm1
+
+Constrained linear model:
+
+
+Restricted model: R2 reduced from 0.8680551 to 0.8145232 
+
+Coefficients:
+   (Intercept)         poison2         poison3          treatB          treatC  
+        1.8377          1.4308          2.9650          0.0000          0.0000  
+        treatD  poison2:treatB  poison3:treatB  poison2:treatC  poison3:treatC  
+       -0.1480         -1.8751         -1.7737         -0.5546         -0.5377  
+poison2:treatD  poison3:treatD  
+       -1.4189         -1.5629  
+
+> summary(orlm1)
+Order-restricted linear model with restrictions of coefficients of 
+poison2 poison3 treatB treatC treatD 
+
+
+ Inequality restrictions:
+     poison2 poison3 treatB treatC treatD                   
+1:   1       0       0      0      0      %*%colnames  >=  0
+2:   0       1       0      0      0      %*%colnames  >=  0
+3: A 0       0       1      0      0      %*%colnames  >=  0
+4: A 0       0       0      -1     0      %*%colnames  >=  0
+5:   0       0       0      0      -1     %*%colnames  >=  0
+
+ Note: Restrictions marked with A are active. 
+
+
+Restricted model: R2 reduced from 0.8680551 to 0.8145232 
+
+
+Coefficients from order-restricted model: 
+     (Intercept)        R poison2        R poison3         R treatB 
+       1.8376895        1.4307805        2.9649958        0.0000000 
+        R treatC         R treatD   poison2:treatB   poison3:treatB 
+       0.0000000       -0.1480075       -1.8750778       -1.7737125 
+  poison2:treatC   poison3:treatC   poison2:treatD   poison3:treatD 
+      -0.5545508       -0.5376984       -1.4189284       -1.5628726 
+
+ Note: Coefficients marked with R are involved in restrictions. 
+
+
+Hypothesis Tests ( 36 error degrees of freedom ): 
+Overall model test under the order restrictions: 
+       Test statistic: 0.8605924,   p-value: <0.0001
+
+Type 1 Test: H0: all restrictions active(=) 
+         vs. H1: at least one restriction strictly true (>) 
+       Test statistic: 0.7842197,   p-value: <0.0001
+Type 2 Test: H0: all restrictions true 
+         vs. H1: at least one restriction false 
+       Test statistic: 0.288618,   p-value: 0.0064
+Type 3 Test: H0: at least one restriction false or active (=) 
+         vs. H1: all restrictions strictly true (>) 
+       Test statistic: -3.819694,   p-value: 0.9997
+
+Type 3 test based on t-distribution (one-sided), 
+all other tests based on mixture of beta distributions
+
+> ic.test(orlm1)
+
+Order-related hypothesis test:
+  Test problem  Test statistic         p-value  
+             1          0.7842         <0.0001  
+
+> 

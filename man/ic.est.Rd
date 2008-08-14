@@ -101,8 +101,11 @@ x2 <- c(-1, -1)
 x3 <- c(10, -1)
 ## estimation under restriction non-negative orthant
 ## or first element equal to 0, second non-negative
-ic.est(x1, corr.plus, ui=diag(c(1,1)), ci=c(0,0))
-ic.est(x1, corr.plus, ui=diag(c(1,1)), ci=c(0,0), meq=1)
+ice <- ic.est(x1, corr.plus, ui=diag(c(1,1)), ci=c(0,0))
+ice
+summary(ice)
+ice2 <-ic.est(x1, corr.plus, ui=diag(c(1,1)), ci=c(0,0), meq=1)
+summary(ice2)
 ic.est(x2, corr.plus, ui=diag(c(1,1)), ci=c(0,0))
 ic.est(x2, corr.plus, ui=diag(c(1,1)), ci=c(0,0), meq=1)
 ic.est(x3, corr.plus, ui=diag(c(1,1)), ci=c(0,0))
