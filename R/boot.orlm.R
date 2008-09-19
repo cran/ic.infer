@@ -3,12 +3,6 @@ boot.orlm <- function (model, B = 1000, fixed = FALSE, ui, ci, index, meq)
     ## check for admissible model
     if (!("lm" %in% class(model))) 
         stop("ERROR: model must be of class lm.")
-    if (any(c("glm", "mlm", "rlm") %in% class(model))) 
-        stop("all.R2 does not work on classes glm, mlm or rlm.")
-    if (length(model$xlevels) > 0) 
-        stop("model must not contain any factors!")
-    if (max(attr(model$terms, "order")) != 1) 
-        stop("model must not contain higher order terms")
     ## prepare data for bootstrap sampling
     resp <- attr(model$terms, "response")
     xcol <- which(rowSums(attr(model$terms, "factors")) > 0)

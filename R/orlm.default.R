@@ -1,6 +1,7 @@
 orlm.default <- function (model, ui, ci = NULL, index = NULL, 
     meq = 0, tol = sqrt(.Machine$double.eps), df.error = NULL, ...) 
 {
+    ## this program is used, if model is a covariance matrix
     ## check model
     if (!(is.matrix(model))) 
         stop("ERROR: model must be of class lm or a covariance matrix.")
