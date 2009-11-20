@@ -31,7 +31,7 @@ RREF(X, ...)    ## not exported, calculates reduced Echelon form
   The latter are used for reducing a matrix with less than full row rank
   to a set of linearly independent rows.
   }
-\author{ Ulrike Groemping, TFH Berlin, 
+\author{ Ulrike Groemping, BHT Berlin, 
 based on code by John Fox and Wolfgang Huber }
 \seealso{ \code{\link{ic.test}}, \code{\link{orlm}} }
 \examples{

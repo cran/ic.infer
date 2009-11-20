@@ -1,0 +1,55 @@
+Change Log for R-package ic.infer
+
+
+Version 1.1 (20 November 2009)
+- added contrast function contr.diff for increment coding of factors with 
+  ordered levels 
+- added function make.mon.ui for easier creation of matrix ui in monotonicity situations
+- corrected orlm.Rd (quotes in code blocks)
+- added two data examples (bodyfat and grades)
+
+Version 1.0-6 (19 September 2008)
+Bug fixes:
+- orlm and or.relimp did not work properly for linear models on data
+  frames without column names.
+- bootstrapping did not work on models with factors because of an
+  undocumented and unnecessary stopping condition in internal function
+  boot.orlm.
+
+Version 1.0-5 (16 August 2008)
+- improved error message when using orlm or or.relimp with non-quadratic matrix
+- added tests directory for standard automated code testing
+- added examples for summary.orest to documentation
+- Bug fixes:
+  - Fixed typo that made ic.test use asymptotic instead of finite df test, when
+    applied to linear model object
+  - or.relimp did not work for covariance matrices without column names
+
+Version 1.0-4 (14 August 2008)
+- Namespace now exports summary function for class orest (erroneously yielded
+  default summary before, although a special method had been added with version
+  0.8-2)
+- Added helpful error message for plot.orlm, when applied to object that was
+  generated based on covariance matrix and therefore without residuals
+
+Version 1.0-1 to 1.0-3 (13 August 2008)
+- Prohibit simultaneous occurrence of restriction on intercept and bootstrap
+  (consequence of switching to covariance-matrix based calculation in bootstrap)
+- Bug fix for internal function orlm.forboot (index – 1 replaced by index in
+  call)
+- Bug fixes for ic.weights (even and odd sums were wrongly implemented and only
+  worked for some numbers of restrictions)
+
+Version 1.0 (12 August 2008)
+- ic.weights saves additional time on weight calculation by exploiting that odd and
+  even weights each sum to 0.5.
+- orlm and or.relimp can now operate based on a covariance matrix only and do
+  not necessarily require a linear model for input.
+- all.R2 now requests a covariance matrix instead of a linear model for input (it
+  should not be necessary for users to directly call all.R2).
+- Bootstrapping in orlm is now based on the covariance-matrix-based calculation for
+  option fixed=FALSE. Thus, issues are avoided in making bootstrapping work with
+  functions that indirectly call lm.
+• The documentation has been updated and improved in some respects.
+Version 0.8-3 (01 August 2008)
+•

@@ -46,12 +46,27 @@ and \pkg{boot} for bootstrapping.
   
   It also uses modifications of numerical routines that were provided by John Fox 
   in R-help.
+  
+  Thanks go to Wiley for permission of incorporating the grades data 
+  from Table 1.3.1 of Robertson, Wright and Dykstra (1988) into the package.
   }
-
+\examples{
+## unrestricted linear model for grade point averages
+limo <- lm(meanGPA~.-n, weights=n, data=grades)
+summary(limo)
+## restricted linear model with restrictions that better HSR ranking 
+## cannot deteriorate meanGPA
+orlimo <- orlm(lm(meanGPA~.-n, weights=n, data=grades), index=2:9, 
+       ui=make.mon.ui(grades$HSR))
+summary(orlimo, brief=TRUE)
+}
 \references{
     Kudo, A. (1963) A multivariate analogue of the one-sided test. 
     \emph{Biometrika} \bold{50}, 403--418
     
+    Robertson T, Wright F, Dykstra R (1988). \emph{Order-Restricted Inference}. 
+    Wiley, New York.
+
     Sasabuchi, S. (1980) A test of a multivariate normal mean with composite 
        hypotheses determined by linear inequalities. \emph{Biometrika} 
        \bold{67}, 429--429
@@ -62,7 +77,7 @@ and \pkg{boot} for bootstrapping.
     
     Silvapulle, M.J. and Sen, P.K. (2004) \emph{Constrained Statistical Inference}. 
     Wiley, New York}
-\author{ Ulrike Groemping, TFH Berlin }
+\author{ Ulrike Groemping, BHT Berlin }
 \seealso{ See also \code{\link{ic.est}}, \code{\link{ic.test}}, \code{\link{orlm}},
         \code{\link{or.relimp}}, packages \pkg{boot}, \pkg{kappalab}, 
         \pkg{mvtnorm}, \pkg{quadprog}, and \pkg{relaimpo}}

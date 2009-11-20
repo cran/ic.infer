@@ -81,7 +81,7 @@ contributions from all models with respective subset of restrictions
 \code{ui \%*\% beta >= ci} enforced. 
 }
 
-\author{ Ulrike Groemping, TFH Berlin }
+\author{ Ulrike Groemping, BHT Berlin }
 \seealso{ See also \code{\link{orlm}} for order-restricted linear models and 
     \code{calc.relimp} from \code{R}-package \code{relaimpo} for a much more 
     comfortable and much faster routine for unrestricted linear models}

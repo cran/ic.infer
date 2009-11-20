@@ -65,6 +65,9 @@ orlm.forboot(data, indices, index = index, ...)
             message with a hint which subset of rows is independent.
             Note that the restrictions must define a (possibly translated) cone,
             i.e. e.g. interval restrictions on a parameter are not permitted. 
+            
+            See \code{\link{contr.diff}} for examples of how to comfortably 
+            define various types of restriction.
             }
   \item{ci}{ vector on the right-hand side of the restriction (cf. \code{ui}) }
   \item{index}{ index numbers of the components of beta, 
@@ -131,9 +134,9 @@ orlm.forboot(data, indices, index = index, ...)
         though the \code{obj} contains a \code{bootout} element; 
         default: \code{TRUE} }
   \item{bty}{ type of bootstrap confidence interval; any of 
-        \code{\dQuote{perc}}, \code{\dQuote{bca}}, \code{\dQuote{norm}} or \code{\dQuote{basic}}, 
+        \code{"perc"}, \code{"bca"}, \code{"norm"} or \code{"basic"}, 
         cf. function \code{boot.ci} from package \code{boot},
-        default: \code{\dQuote{perc}} }
+        default: \code{"perc"} }
   \item{level}{ confidence level for bootstrap confidence intervals,
         default: \code{0.95}}
 }
@@ -203,7 +206,7 @@ Test 3 is conducted in case of no equality-restrictions only.
 \references{ Shapiro, A. (1988) Towards a unified theory of inequality-constrained 
     testing in multivariate analysis. \emph{International Statistical Review} 
     \bold{56}, 49--62}
-\author{ Ulrike Groemping, TFH Berlin }
+\author{ Ulrike Groemping, BHT Berlin }
 \seealso{ See also \code{\link{ic.est}}, \code{\link{ic.test}}, 
         \code{\link{or.relimp}}, \code{solve.QP}}
 \examples{

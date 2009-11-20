@@ -43,7 +43,10 @@ ic.est(x, Sigma, ui, ci = NULL, index = 1:nrow(Sigma), meq = 0,
             in case of linearly dependent rows the function gives an error 
             message with a hint which subset of rows is independent.
             Note that the restrictions must define a (possibly translated) cone,
-            i.e. e.g. interval restrictions on a parameter are not permitted. }
+            i.e. e.g. interval restrictions on a parameter are not permitted. 
+            
+            See \code{\link{contr.diff}} for examples of how to comfortably 
+            define various types of restriction.}
   \item{ci}{ vector on the right-hand side of the restriction (cf. \code{ui}),
             defaults to a vector of zeroes }
   \item{index}{ index numbers of the components of mu, 
@@ -87,7 +90,7 @@ with the first \code{meq} restrictions equality instead of inequality restrictio
   \item{iact}{ active restrictions, i.e. restrictions that are satisfied with 
                equality in the solution, as output by \code{solve.QP}} 
 }
-\author{ Ulrike Groemping, TFH Berlin }
+\author{ Ulrike Groemping, BHT Berlin }
 \seealso{ See also \code{\link{ic.test}}, \code{\link{ic.weights}}, 
          \code{\link{orlm}}, \code{solve.QP} }
 \examples{

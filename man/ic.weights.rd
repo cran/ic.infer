@@ -77,7 +77,7 @@ beta-distributions, respectively.
     
     Silvapulle, M.J. and Sen, P.K. (2004) \emph{Constrained Statistical Inference}. 
     Wiley, New York}
-\author{ Ulrike Groemping, TFH Berlin }
+\author{ Ulrike Groemping, BHT Berlin }
 \seealso{ \code{\link{ic.test}}, \code{\link{orlm}}, \code{pmvnorm}, 
          \code{GenzBretz} }
 \examples{
