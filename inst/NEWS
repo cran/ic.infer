@@ -1,6 +1,11 @@
 Change Log for R-package ic.infer
 
 
+Version 1.1-1 (18 December 2009)
+- removed LICENSE file that erroneously claimed a geographical restriction to non-US
+  since version 0.8. ic.infer is not and has never been geographically restricted,
+  but is subject to GPL >=2.
+
 Version 1.1 (20 November 2009)
 - added contrast function contr.diff for increment coding of factors with 
   ordered levels 

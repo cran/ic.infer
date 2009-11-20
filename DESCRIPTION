@@ -1,6 +1,6 @@
 Package: ic.infer
 Title: Inequality constrained inference in linear normal situations
-Version: 1.1
+Version: 1.1-1
 Depends: R(>= 2.5.0), quadprog, mvtnorm, boot, kappalab
 Date: 2009-11-20
 Author: Ulrike Groemping
@@ -16,6 +16,6 @@ LazyLoad: yes
 LazyData: yes
 Encoding: latin1
 URL: http://prof.tfh-berlin.de/groemping/
-Packaged: 2009-11-20 23:17:27 UTC; Grömping
+Packaged: 2009-12-18 17:27:01 UTC; Grömping
 Repository: CRAN
-Date/Publication: 2009-11-22 16:20:32
+Date/Publication: 2009-12-20 09:35:04
