@@ -1,5 +1,10 @@
 Change Log for R-package ic.infer
 
+Version 1.1-2 (06 February 2010)
+- Removed selective capitalization of output headers
+- improved line break properties of output in summary.ict
+- added pdf documentation file and ic.infer alias in help
+- added citation information
 
 Version 1.1-1 (18 December 2009)
 - removed LICENSE file that erroneously claimed a geographical restriction to non-US

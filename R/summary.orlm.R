@@ -86,7 +86,7 @@ summary.orlm <- function (object, display.unrestr = FALSE, brief = FALSE, digits
                 "You can avoid this error message by running summary.orlm with option overall.tests=FALSE", 
                 sep = ""))
         ## reporting of overall tests
-        cat("\n\nHypothesis Tests (", object$df.error, "error degrees of freedom ):", 
+        cat("\n\nHypothesis tests (", object$df.error, "error degrees of freedom ):", 
             "\n")
         cat("Overall model test under the order restrictions:", 
             "\n")
@@ -99,7 +99,7 @@ summary.orlm <- function (object, display.unrestr = FALSE, brief = FALSE, digits
                 "<0.0001"
             else format(round(hilf1$p.value, 4), nsmall = 4), 
             "\n\n", sep = "")
-        cat("Type 1 Test: H0: all restrictions active(=)", "\n", 
+        cat("Type 1 test: H0: all restrictions active(=)", "\n", 
             "        vs. H1: at least one restriction strictly true (>)", 
             "\n")
         ## weights are used from previous test
@@ -110,7 +110,7 @@ summary.orlm <- function (object, display.unrestr = FALSE, brief = FALSE, digits
                 "<0.0001"
             else format(round(hilf1$p.value, 4), nsmall = 4), 
             "\n", sep = "")
-        cat("Type 2 Test: H0: all restrictions true", "\n", 
+        cat("Type 2 test: H0: all restrictions true", "\n", 
             "        vs. H1: at least one restriction false", 
             "\n")
         ## weights are used from previous test
@@ -122,7 +122,7 @@ summary.orlm <- function (object, display.unrestr = FALSE, brief = FALSE, digits
             else format(round(hilf2$p.value, 4), nsmall = 4), 
             "\n", sep = "")
         if (!object$meq > 0) {
-            cat("Type 3 Test: H0: at least one restriction false or active (=)", 
+            cat("Type 3 test: H0: at least one restriction false or active (=)", 
                 "\n", "        vs. H1: all restrictions strictly true (>)", 
                 "\n")
             hilf3 <- ic.test(object, TP = 3, df.error = object$df.error, 

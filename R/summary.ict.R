@@ -4,7 +4,7 @@ summary.ict <- function (object, brief = TRUE, digits = max(3, getOption("digits
 {
     if (!"ict" %in% class(object)) 
         stop("summary.ict works on class ict only.")
-    cat("Order-related hypothesis Test:", "\n")
+    cat("Order-related hypothesis test:", "\n")
     namen <- names(object$b.restr)
     if (is.null(namen)) 
         namen <- paste("m", 1:length(object$b.restr), sep = "")
@@ -27,8 +27,8 @@ summary.ict <- function (object, brief = TRUE, digits = max(3, getOption("digits
             "\n")
         print(aus.test, quote = FALSE)
         if (!brief) {
-            cat("\nRestrictions on", namen[object$restr.index[colSums(!object$ui == 
-                0) > 0]], "\n")
+            cat("\nRestrictions on ", namen[object$restr.index[colSums(!object$ui == 
+                0) > 0]], fill=TRUE)
             print(aus.rest, quote = FALSE, scientific = FALSE)
         }
         cat("\nRestricted estimate under H0:\n")

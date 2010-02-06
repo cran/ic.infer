@@ -1,4 +1,5 @@
 \name{ic.infer}
+\alias{ic.infer}
 \alias{ic.infer-package}
 \title{ Package for inequality-constrained estimation and testing }
 \description{
@@ -27,6 +28,9 @@ The package makes use of various other R packages: \pkg{quadprog} is used for
 constrained estimation, \pkg{mvtnorm} in calculation of weights for null distributions 
 of test statistics, \pkg{kappalab} for averaging over orderings in function \code{or.relimp}, 
 and \pkg{boot} for bootstrapping.
+
+Functionality of the package and mathematics behind it are explained in a pdf 
+documentation file that is based on Groemping (2010) (\url{../doc/ic.infer_docu.pdf}).
 }
 
 \value{
@@ -61,7 +65,11 @@ orlimo <- orlm(lm(meanGPA~.-n, weights=n, data=grades), index=2:9,
 summary(orlimo, brief=TRUE)
 }
 \references{
-    Kudo, A. (1963) A multivariate analogue of the one-sided test. 
+    Groemping, U. (2010). Inference With Linear Equality And Inequality
+     Constraints Using R: The Package ic.infer. \emph{Journal of Statistical Software}, 
+     Forthcoming. 
+
+    Kudo, A. (1963). A multivariate analogue of the one-sided test. 
     \emph{Biometrika} \bold{50}, 403--418
     
     Robertson T, Wright F, Dykstra R (1988). \emph{Order-Restricted Inference}. 
@@ -71,11 +79,11 @@ summary(orlimo, brief=TRUE)
        hypotheses determined by linear inequalities. \emph{Biometrika} 
        \bold{67}, 429--429
        
-    Shapiro, A. (1988) Towards a unified theory of inequality-constrained 
+    Shapiro, A. (1988). Towards a unified theory of inequality-constrained 
     testing in multivariate analysis. \emph{International Statistical Review} 
     \bold{56}, 49--62
     
-    Silvapulle, M.J. and Sen, P.K. (2004) \emph{Constrained Statistical Inference}. 
+    Silvapulle, M.J. and Sen, P.K. (2004). \emph{Constrained Statistical Inference}. 
     Wiley, New York}
 \author{ Ulrike Groemping, BHT Berlin }
 \seealso{ See also \code{\link{ic.est}}, \code{\link{ic.test}}, \code{\link{orlm}},
