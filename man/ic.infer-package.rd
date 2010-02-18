@@ -29,8 +29,10 @@ constrained estimation, \pkg{mvtnorm} in calculation of weights for null distrib
 of test statistics, \pkg{kappalab} for averaging over orderings in function \code{or.relimp}, 
 and \pkg{boot} for bootstrapping.
 
-Functionality of the package and mathematics behind it are explained in a pdf 
-documentation file that is based on Groemping (2010) (\url{../doc/ic.infer_docu.pdf}).
+The theory behind inequality-constrained estimation and testing as well as 
+functionality of the package are explained in a vignette (Link from within dynamic help: 
+\url{../doc/ic.infer.pdf}) that is based on Groemping (2010). 
+The vignette can also be opened from the command line by \code{vignette("ic.infer")}.
 }
 
 \value{

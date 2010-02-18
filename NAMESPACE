@@ -3,5 +3,4 @@
             "summary.orlm", "summary.orest", "summary.ict",
             "pchibar", "pbetabar","plot.orlm","contr.diff","make.mon.ui",
             "print.ict","print.orest","print.orlm","or.relimp","all.R2",
-            "orlm.default","orlm.lm","or.relimp.default","or.relimp.lm",
-            "bodyfat")
+            "orlm.default","orlm.lm","or.relimp.default","or.relimp.lm")

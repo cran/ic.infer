@@ -1,0 +1,652 @@
+\documentclass[nojss]{jss}
+%\documentclass[a4paper,12pt]{article} 
+\title{Inference with Linear Equality 
+and Inequality Constraints Using \proglang{R}: \\ The Package \pkg{ic.infer}} 
+\Plaintitle{Inference with Linear 
+Equality and Inequality Constraints Using R: The Package ic.infer} 
+\Shorttitle{Inequality-Constrained Inference in \proglang{R}} 
+
+\author{Ulrike Gr\"omping\\BHT Berlin -- University of Applied Sciences} 
+\Plainauthor{Ulrike Gr\"omping} 
+
+\Abstract{In linear models and multivariate normal situations, 
+prior information in linear inequality form may be encountered, or linear inequality 
+hypotheses may be subjected to statistical tests. \proglang{R}~package \pkg{ic.infer} 
+has been developed to support inequality-constrained estimation and testing 
+for such situations. This article gives an overview of the principles underlying 
+inequality-constrained inference 
+that are far less well-known than methods for unconstrained or equality-constrained 
+models, and describes their implementation in the package.}
+
+\Keywords{inequality constraints, quadratic programming, order-restricted linear model, \pkg{ic.infer}, \pkg{mvtnorm}}
+\Plainkeywords{inequality constraints, quadratic programming, order-restricted linear model, ic.infer, mvtnorm}
+
+\Address{Ulrike Gr\"omping\\
+Department II -- Mathematics, Physics, Chemistry\\
+BHT Berlin -- University of Applied Sciences\\
+D-13353 Berlin\\
+E-mail: \email{groemping@bht-berlin.de}\\
+URL: \url{http://prof.tfh-berlin.de/groemping/}
+}
+
+\usepackage{amsmath} 
+\usepackage{amssymb} 
+\usepackage{amscd} 
+\usepackage{graphicx}
+%\usepackage{pmat}
+%\usepackage[stable]{footmisc}
+
+%allow embedding of manual pages into appendix
+%margin needs to be adapted, not sure how exactly
+%the settings below come close to unchanged, but not perfect
+%\usepackage[ae]{RdjssMod}
+
+%\usepackage[headings]{fullpage} 
+
+%% need no \usepackage{Sweave} 
+
+%% added especially for the documentation,
+%% not in JSS paper
+%% furthermore, added a \newpage before section 5
+%% and before section 5.5
+\renewenvironment{Schunk}{\footnotesize}{}
+\widowpenalty=300
+\clubpenalty=300
+%\VignetteIndexEntry{ic.infer: theory and usage instructions}
+%\VignetteDepends{relaimpo}
+
+\begin{document} 
+\maketitle 
+
+\section{What is this?}
+This is not the source but a dummy source to make the pdf available as vignette 
+and to have the code checked during R CMD check.
+
+\subsection{Example data}
+\label{ssec:examp}
+Two data examples are used in this section. The first example, taken from 
+Table~1.3.1 in \citet{22}, concerns first-year 
+grade point averages from 2397 Iowa university first-years (available as 
+data frame \code{grades} in package \pkg{ic.infer}) as a function of 
+two ordinal variables with 9~categories each, 
+High-School-Ranking percentiles and ACT Classification\footnote{ACT is an 
+organization that offers~\textendash~among other things~\textendash~college entrance exams in the US; up to 1996, 
+ACT stood for ``American College Testing''.}. Suppose that an admission policy is to be developed 
+based on these figures. Of course, in order to appear just, an admission policy should 
+be monotone in the sense that admission of a particular person implies that all persons who are better 
+on one criterion and not worse on the other are also admitted. Thus, the predicted 
+function must be monotone in both variables. Using this motivation, \citet{22} demonstrate 
+isotonic regression on these data. In this article, a two-way analysis 
+of variance without interaction 
+is fit to the data. The unrestricted linear model (cf.\ below) does contain reversals 
+w.r.t. HSR, where applicants with HSR 41\% to 50\% would be assessed better than 
+those with HSR 51\% to 60\%, and similarly applicants with HSR < 20\% better than those with HSR 21\% to 40\%. 
+Note that estimates for the categories of HSR for which unrestricted estimates are reversed are not 
+significantly different from 0. The restricted analyses in Sections~\ref{ssec:est} and \ref{ssec:orlm} will 
+restrict parameters for the factor HSR to be monotone. Note that this is an example of a model with a known 
+diagonal (but not identity) $V_0$: assuming an unknown positive variance $\sigma^2$ of the grade points of each 
+student, the variances of the grade means are proportional to the inverse number of students in each class. 
+This can be easily accomodated in function \code{lm} by using the number of students \code{n} in the 
+\code{weights} option (cf.\ the code below).
+
+<<echo=false>>=
+options(width=80)
+options(prompt = "R> ", continue = "+  ", digits = 4, useFancyQuotes = FALSE) 
+require(ic.infer, quietly=TRUE)
+contrasts(grades$HSR) <- "contr.treatment"
+contrasts(grades$ACTC) <- "contr.treatment"
+@
+
+<<grades.unrestr>>=
+limo.grades <- lm(meanGPA ~ HSR + ACTC, grades, weights = n)
+summary(limo.grades)
+@
+
+The second example uses a data set from \citet{18} (online also at 
+\url{http://www.ats.ucla.edu/stat/sas/examples/alsm/alsmsasch7.htm}) 
+that contains observations on 
+20~females with body fat as the target variable and three explanatory variables all of 
+which can be expected to be associated with an increase in body fat:
+
+\begin{itemize}\setlength\itemsep{-0.5ex}
+\item triceps skinfold thickness
+\item thigh circumference
+\item mid arm circumference.
+\end{itemize}
+
+These data are analysed as a regression model with all coefficients restricted to 
+be non-negative. This example is similar in spirit to the customer satisfaction applications 
+that instigated development of \pkg{ic.infer}, but much smaller, publicly available 
+and included in the package. It also permits to demonstrate application of the simple 
+$R^2$ decomposition function that is offered within \pkg{ic.infer}. The unrestricted 
+linear model estimates for two of the three variables are negative, and in spite of 
+high $R^2$ and rejection of the overall null hypothesis, 
+no individual coefficient is statistically significant:
+
+<<bodyfat.unrestr>>=
+limo.bodyfat <- lm(BodyFat ~ ., bodyfat)
+summary(limo.bodyfat)
+@
+
+\subsection{Utilities for monotonicity situations}
+One of the most important special cases of 
+inequality-related setups is the investigation of monotonic behavior of the 
+expectation for a factor with ordered categories. In this subsection, 
+package \pkg{ic.infer}'s support for this situation is described.
+
+\subsubsection{Difference contrasts}
+\label{ssec:contr.diff}
+The interpretation of coefficients for factors always depends on the factor coding. 
+In \proglang{R}, default coding for conventional factors (as opposed to ordered factors) 
+is a reference coding with the first factor level 
+being the base category (called \code{contr.treatment}). For factors declared to be 
+ordered, the default contrasts are polynomial. Alternative contrast codings are, among 
+others, \code{contr.SAS}, \code{contr.helmert} and \code{contr.sum}. Among these, 
+the polynomial and the Helmert coding do not allow simple assessment of monotonicity 
+based on the estimated coefficients, while the others do. 
+
+There is one particular factor coding that 
+is not routinely available in \proglang{R} but particularly suitable for 
+assessing monotonicity for factors with ordered levels: each coefficient corresponds 
+to the difference in expectation to the next lower category, implying that 
+monotonicity corresponds to the same sign for all coefficients. The corresponding 
+contrast function \code{contr.diff} has been implemented in package 
+\pkg{ic.infer}. 
+
+For illustration, the unconstrained linear model for the grades data is re-calculated with this coding below. 
+The contrast matrix shows that the expectation for the lowest level does not contain 
+any of the coefficients, the expectation for the second level contains the first coefficient, 
+the expectation for the third level the first two coefficients and so forth, 
+until all the eight coefficients are contained in the expectation model for the highest level. 
+The coefficients thus measure the average increase from each level to the next higher one.
+
+<<grades.unrestr.diff>>=
+grades.diff <- grades
+## change contrasts to contr.diff
+contrasts(grades.diff$HSR) <- "contr.diff"
+contrasts(grades.diff$ACTC) <- "contr.diff"
+## display contrasts
+contrasts(grades.diff$HSR)
+limo.grades.diff <- lm(meanGPA ~ HSR + ACTC, grades.diff, weights = n)
+summary(limo.grades.diff)
+@
+
+\subsubsection{Utility function for creating a monotonicity restriction matrix}
+\label{ssec:make.mon.ui}
+Generally, the restriction matrix $ui$ has to be tailored to the situation at hand. 
+Depending on the coding of a factor, it can be quite tedious to define the appropriate $ui$ 
+for hypotheses related to the relation of expectations between factor levels. 
+
+For the frequent situation, where monotonicity of factors with several ordered 
+levels is of interest, package \pkg{ic.infer} provides the convenience function 
+\code{make.mon.ui} for creating the appropriate restriction matrix $ui$. 
+The function can be used whenever the current coding 
+permits assessment of monotonicity in a simple way, i.e., for 
+contrasts \code{contr.treatment} (currently with first category as baseline only), 
+\code{contr.SAS}, \code{contr.diff} and \code{contr.sum}). The output below shows 
+the matrix $ui$ for two different factor codings: The matrix $ui$ for the 
+treatment contrasts calculates the first coefficient (=difference of second category 
+to the first (=reference) category) and all differences between coefficients for next higher 
+to next lower level. The matrix $ui$ for the difference contrasts simply calculates 
+each coefficient. For both codings, monotonicity constraints are of the form $ui\beta \ge 0$ 
+(or $-ui\beta \ge 0$ for monotone decrease).
+
+<<grades.contrasts>>=
+## originally, treatment contrasts
+ui.treat <- make.mon.ui(grades$HSR)
+ui.treat
+ui.diff <- make.mon.ui(grades.diff$HSR)
+ui.diff
+@
+
+Function \code{make.mon.ui} can also be used for creating the matrix 
+$ui$ for investigating the monotonicity of a multivariate normal mean without 
+using a linear model based on a factor. In this case, the first argument to \code{make.mon.ui} is the 
+dimension of the multivariate normal distribution, and \code{type = "mean"} must 
+be specified. The resulting matrix $ui$ then calculates differences of neighbouring means:
+<<mon.means>>=
+## originally, treatment contrasts
+make.mon.ui(5, type = "mean")
+@
+
+\subsection{Estimation}
+\label{ssec:est}
+Function \code{ic.est} for inequality-constrained estimation of normal means 
+uses the routine \code{solve.QP} from R-package \pkg{quadprog} to determine the 
+constrained estimate. It is possible to declare the first few rows of the 
+restrictions $ui \mu \ge ci$ to be equality restrictions (via the parameter \code{meq}). 
+It has been pointed out above that estimation of $\beta$ in the restricted linear model 
+is equivalent to estimation of $\beta$ based on the multivariate normal distribution of the 
+unrestricted estimate $\hat \beta$. Thus, we can illustrate function \code{ic.est} using the estimates 
+from one of the linear models above. For example, one can estimate the coefficients 
+of the factor \code{HSR} with treatment contrasts under the restriction of 
+non-decreasing behavior, i.e., $\beta_1 \ge 0, \beta_2 - \beta_1 \ge 0, 
+\dots, \beta_9 - \beta_8 \ge 0$ (contrast matrix \code{ui.treat} defined 
+in \ref{ssec:make.mon.ui}):
+
+<<echo=false>>=
+options(width=100)
+@
+<<grades.estHSR>>=
+HSRmon <- ic.est(coef(limo.grades)[2:9],
+       ui = ui.treat, 
+       Sigma = vcov(limo.grades)[2:9, 2:9])
+HSRmon
+@
+
+It is also possible to indicate that the first few restrictions (number given by option 
+\code{meq}) are equality restrictions. For example, the code below declares that the first 
+three restrictions are equality instead of inequality restrictions: 
+
+<<grades.estHSReq>>=
+HSReq <- ic.est(coef(limo.grades)[2:9],
+       ui = ui.treat, 
+       Sigma = vcov(limo.grades)[2:9, 2:9], meq = 3)
+HSReq
+@
+
+A summary-function on objects of class \code{orest}~\textendash~as generated by function \code{ic.est}~\textendash~
+gives more detailed information, showing also the restrictions, which of them are active, and 
+indicating which estimates are subject to a restriction (regardless whether active or not). 
+For the monotonicity-restricted estimate, we get
+<<grades.summaryHSR>>=
+summary(HSRmon)
+@
+
+While it would be possible to determine the estimate even 
+for linearly dependent rows of the constraint matrix $R$, this is not permitted 
+in package \pkg{ic.infer}~\textendash~if the package encounters linearly dependent rows 
+in \code{ui} (the package notation for $R$), 
+it aborts with an error message that suggests a subset of independent rows of \code{ui}.
+
+\subsection{Hypothesis testing}
+\label{ssec:ic.test}
+Package \pkg{ic.infer} implements the likelihood ratio tests for test problems 
+\ref{TP1}, \ref{TP2}, and \ref{TP3} in function \code{ic.test}. The principal argument 
+to function \code{ic.test} is an object of class \code{orest} as output by 
+function \code{ic.est}; an object of class \code{orlm} output by function \code{orlm} 
+can also be processed, since it inherits from class \code{orest}. 
+Among other things, the input object contains information on the 
+restrictions that were used for estimation. The type of test problem is indicated 
+to function \code{ic.test} via option \code{TP}. \code{TP = 1}, \code{TP = 2}, and 
+\code{TP = 3} refer to the test problems introduced in Section~\ref{ssec:TPs}. 
+Three extensions of these problems are additionally implemented:
+
+\begin{itemize}
+\item For \code{TP = 1} and \code{TP = 2}, the first few restrictions can be declared 
+equality instead of inequality restrictions~\textendash~this is 
+implemented in function \code{ic.test} through access to the \code{meq}-element 
+of the input object. This modification 
+requires different calculation of the weights for the null distributions of the 
+test statistics: these weights depend on the conditional covariance matrix given the 
+equality constraints are true, cf.\ \citet[formula (5.9)]{24} and Section~\ref{ssec:weights}. 
+The test statistics continue to be given 
+by (\ref{T1}), (\ref{T2}) or their modification for unkown $\sigma^2$ (\ref{eqn:unknown}), 
+but with $\hat \mu^*$ observing equality- and inequality restrictions.
+
+\item Additional equality restrictions can be included in the null hypothesis of 
+\ref{TP1}. For these, the alternative hypothesis is not directional. This test problem 
+is implemented in the package as \code{TP = 11}, and the additional restrictions 
+are handed to function \code{ic.test} through arguments \code{ui0.11} and \code{ci0.11}. 
+\code{TP = 11} is, for example, used in the summary function for class \code{orlm}, 
+when testing the null hypothesis that all coefficients 
+except the intercept are 0 in the presence of constraints $R \beta \ge 0$ that 
+do not affect all elements of $\beta$. Again, the test statistic for this test 
+problem is already given as (\ref{T1}) or its modification (\ref{eqn:unknown}) 
+above by making $\hat \mu_=$ observe the additional equality restrictions as well. 
+Here, the weights are the same as without equality 
+restrictions, but the degrees of freedom of the distributions in the mixture 
+need to be adjusted. 
+
+\item Some equality restrictions can be maintained in the alternative hypothesis of \ref{TP2}.
+This is implemented as \code{TP = 21} using option \code{meq.alt}, 
+which indicates the number of the first few equality-restrictions that are to be 
+maintained under the alternative hypothesis. 
+\code{meq.alt} must not be larger than the \code{meq}-element of the input object
+of function \code{ic.test}. Here, the test statistic (\ref{T2}) (or (\ref{eqn:unknown})) 
+has to use the restricted estimated under the maintained equality restrictions 
+$\hat \mu_{=,alt}$ instead of $y$.
+\end{itemize}
+
+A few examples are shown below. First, the equality- and inequality-restricted 
+estimate \code{HSReq} of the HSR coefficients is subjected to a test of type \ref{TP1}. 
+We see that equality 
+of all restrictions is clearly rejected; note that option \code{brief=FALSE} requests 
+detailed information on constraints that is not shown per default.
+<<grades.testHSR1>>=
+summary(ic.test(HSReq), brief = FALSE)
+@
+
+Now we test the null hypothesis that restrictions hold vs.\ the alternative that 
+they are violated. We see that this null hypothesis is not rejected, i.e., the data 
+do not provide proof that these restrictions are not all true.
+<<grades.testHSR2>>=
+summary(ic.test(HSReq, TP = 2))
+@
+
+The next test operates on all coefficients of the analysis of variance model from 
+Section~\ref{ssec:examp}. This \code{TP = 11}-type test tests the null hypothesis 
+that all coefficients except for the intercept are 
+zero vs.\ the alternative that the HSR coefficients follow the restriction outlined above, 
+i.e., coefficients in positions 2 to 9 of the coefficient vector (\code{index = 2:9}) follow 
+the indicated restrictions, while all other coefficients are free. 
+Here, the null hypothesis is again clearly rejected. 
+<<grades.testHSR11>>=
+HSReq.large <- ic.est(coef(limo.grades),
+       ui = ui.treat, 
+       Sigma = vcov(limo.grades), index = 2:9, meq = 3)
+summary(ic.test(HSReq.large, TP = 11,
+       ui0.11 = cbind(rep(0, 16), diag(1, 16))))
+@
+
+The last example demonstrates \code{TP = 21}: the null hypothesis has three equality 
+restrictions (estimate object \code{HSReq}), and the first two of these are maintained 
+for the alternative hypothesis (\code{meq.alt=2}). Note that~\textendash~as the alternative 
+is unrestricted apart from the first two equality 
+restrictions~\textendash~a reversal occurs in the estimate under the alternative hypothesis. 
+Nevertheless, like for \code{TP = 2}, the validity of the restrictions is not rejected.
+
+<<grades.testHSR21>>=
+summary(ic.test(HSReq, TP = 21, meq.alt = 2))
+@
+ 
+\newpage
+
+\subsection[Calculation of weights and p values for the test problems]{Calculation of weights and $p$~values for the test problems}
+\label{ssec:weights}
+Function \code{ic.weights} calculates the mixing weights for a given covariance 
+matrix, using the probabilities for certain faces of the cone as derived in 
+Section~\ref{ssec:distquad}. Since it is known that even and odd weights sum to~0.5 each 
+\citep[cf.\ e.g.,][Proposition~3.6.1, Number~3]{26}, 
+the two most demanding weights (in terms of most summands in (\ref{eqn:probface})) 
+can always be inferred as the difference of 0.5 to the sum of the other even or 
+odd weights. Even exploiting this possibility, calculation of weights remains 
+computer-intensive for large covariance matrices; for example, it takes about 
+9~seconds CPU time for a matrix with dimension 10, and already 
+1265~seconds (about 21~minutes) for a matrix with dimension 15. 
+
+Orthant probabilities that are needed for the weights according to (\ref{eqn:probface}), 
+are calculated using package \pkg{mvtnorm} by Monte-Carlo methods, 
+i.e., the weights are subject to slight variation. Because of numerical inaccuracies, 
+it is even possible that calculated $p$~values become slightly negative. 
+Printing and summary functions of package \pkg{ic.infer} report all $p$~values below 
+0.0001 as ``<0.0001'', since more accuracy should normally not be needed.
+
+For the test problems implemented in function \code{ic.test}, choice of the covariance 
+matrices for obtaining the weights follows the formulae by \citet{24}, based on the 
+\code{meq}-, the \code{ui}-, and the \code{Sigma}-element of the input object: 
+Whenever \code{meq=0}, the covariance matrix to use is \code{ui\%*\%Sigma\%*\%t(ui)} 
+(assuming that \code{ui} has $p$ columns if the data are $p$-dimensional, 
+otherwise think of \code{ui} as suitably enlarged by zero columns (\code{uiw} 
+in package code)). 
+If \code{meq>0}, the conditional covariance of the last $m-$\code{meq} rows 
+given the first \code{meq} rows of \code{ui\%*\%y} must be 
+used instead for calculation of mixing weights \citep[formula (5.9) in ][]{24}.
+
+Degrees of freedom corresponding to the weights depend on the test problem at hand 
+and are determined in function \code{ic.test}, if not provided by the user. 
+Functions \code{pchibar} and \code{pbetabar} calculate $p$~values from given vectors of 
+weights and degrees of freedom. Function \code{pchibar} has been taken from package 
+\pkg{ibdreg} by \citet{27}, and function \code{pbetabar} has been 
+analogously defined.
+
+\subsection{Estimation in the linear model}
+\label{ssec:orlm}
+Function \code{orlm} uses the other functions in package \pkg{ic.infer} 
+for providing a convenient overall analysis of order-restricted linear models. 
+Starting from an unconstrained linear model object (class \code{lm}) or a covariance 
+matrix of response (first position) and all regressors, 
+the function determines the constrained estimate, $R^2$ for the constrained model 
+and~\textendash~if requested~\textendash~bootstraps the estimates of coefficients (the latter is 
+valid only in the implemented case of uncorrelated errors and of course only possible 
+if the input is a linear model with embedded data). 
+
+\subsubsection{Postprocessing the output object}
+The output object of 
+class \code{orlm} can be processed with several S3 methods provided in package 
+\pkg{ic.infer}: A \code{plot} method 
+provides a residual plot, a \code{print} method gives a brief printout, and 
+a \code{summary} method gives a more extensive overview on the object, involving bootstrap 
+confidence intervals and overall model and restriction tests, if not suppressed; 
+tests can be suppressed because their calculation may take up substantial time 
+in case of many restrictions because of calculation of weights, cf.\ also the previous 
+subsection. Furthermore, a \code{coef} method extracts the coefficients 
+from the object. In addition to these specially-defined methods, some general methods 
+for model objects do also work: functions \code{fitted} and \code{residuals} provide fitted 
+values and residuals. Other methods for class \code{lm} (\code{predict}, \code{effects}, \code{vcov}) 
+do not work on \code{orlm} objects. Note that model diagnostics cannot be simply transferred 
+to restricted models, as the restricted estimation modifies the distributional properties of the 
+residuals in not easily foreseeable ways. The \code{plot} method only provides a simple plot of 
+raw residuals vs.\ fitted values, as it is not even possible to standardize the residuals. 
+Further research might improve the availability of diagnostics on the restricted model. 
+As long as this has not been conducted, model diagnostics, e.g., for normality, can be 
+done on the unrestricted model, which is of course still valid even though it does 
+not exploit the prior knowledge about a restriction. 
+
+\subsubsection{Linear model analysis for the two example data sets}
+For the grades data, with two ordinal factors, restricting only HSR 
+(because ACTC is automatically in the correct order; indicated by \code{index=2:9} 
+for the position of HSR-coefficients in the overall coefficient vector) 
+function \code{orlm} works as follows (contrast matrix \code{ui.treat} defined 
+in \ref{ssec:make.mon.ui}):
+<<grades.orlmHSR>>=
+orlimo.grades <- orlm(limo.grades,
+       ui = ui.treat, index = 2:9)
+summary(orlimo.grades, brief = TRUE)
+@
+
+Option \code{brief} suppresses information on restrictions (that has been shown 
+in Section~\ref{ssec:est}). 
+For this example, $R^2$ is only slightly reduced by introducing the restriction, and 
+the estimates (not surprisingly) coincide with those from Section~\ref{ssec:est}. 
+The overall model test and the test of \ref{TP1} clearly reject their respective null hypothesis, 
+while the data are compatible with validity of the restriction according to the test for \ref{TP2} 
+but do not prove strict validity of the inequality restriction (\ref{TP3}). 
+
+The grades example has been about analysis of variance and has worked with aggregated 
+data, which makes bootstrapping useless. The rest of this section uses the body fat 
+data for illustrating functionality for order-restricted 
+regression, including bootstrap confidence intervals:
+<<bodyfat.orlm>>=
+orlimo.bodyfat <- orlm(limo.bodyfat,
+       ui = diag(1,3), boot = TRUE)
+summary(orlimo.bodyfat)
+@
+
+Again, $R^2$ is not dramatically reduced, the overall test~\textendash~in this case 
+identical to the test for \ref{TP1}~\textendash~is clearly significant, 
+while the other two tests do not reject their null hypothesis. 
+While the unrestricted model had two negative estimated coefficients, the restricted 
+model has one active restriction. The other previously negative coefficient has now 
+been estimated to be positive. 
+Note that still none of the individual coefficients is significantly different from 0, 
+since all bootstrap confidence intervals include this boundary value.
+
+
+\subsubsection{Bootstrapping regression models}
+\label{ssec:boot}
+Confidence intervals in \pkg{ic.infer} are obtained via the bootstrap. The implemented 
+bootstrap is valid for uncorrelated observations only, since observations are 
+independently sampled. When bootstrapping regression models, there are two principally 
+different reasonable approaches \citep[cf. e.g.][]{6,7}: 
+The regressors can be 
+considered fixed in some situations, e.g., for experimental data. In this case, 
+only the error terms are random. Contrary, in observational studies, 
+like e.g., customer satisfaction surveys, it makes far more sense to consider 
+also the regressors as random, since the observations are a random sample from 
+a larger population. These two scenarii prompt two different approaches 
+for bootstrapping: For fixed regressors, bootstrapping is based on repeated 
+sampling from the residuals of the regression model, while for random 
+regressors, the complete observation rows~\textendash~consisting of regressors and response~\textendash~
+are resampled. \pkg{ic.infer} offers both possibilities, defaulting to random 
+regressors (\code{fixed = FALSE}). Bootstrapping in \pkg{ic.infer} is implemented 
+in function \code{orlm} based on the function \code{boot} from \proglang{R}~package 
+\pkg{boot}. Bootstrap confidence intervals are then calculated by the summary 
+method for the output object from function \code{orlm}, relying on 
+function \code{boot.ci} of package \pkg{boot}. Percentile intervals, 
+BCa intervals, normal intervals and basic intervals are supported 
+(default: percentile intervals). For further information on 
+bootstrapping in general, cf.\ e.g., \citet{6}. 
+
+\subsubsection{Overall tests}
+\label{ssec:overtest}
+As mentioned above and shown in the example output, 
+the summary method for objects of class \code{orlm} calculates
+an overall model test, similar to the overall $F$~test in the unconstrained 
+linear model, and several tests for or against the restrictions. 
+These can be suppressed, because their calculation can be very time-consuming 
+in case of large sets of restrictions. 
+
+If they are not suppressed, function \code{summary.orlm} calculates an overall 
+test that all parameters except the intercept are 0 ($H_0$) vs.\ the restriction set 
+(this is a test of type \code{TP = 11} or \code{TP = 1}, depending on whether or not the original 
+restrictions refer to all parameters in the model). In addition, all tests 
+for the three test problems \ref{TP1} to \ref{TP3} are calculated. 
+(Test problem \ref{TP3} is 
+only applicable if there are no equality restrictions (i.e., \code{meq=0}).) 
+Note that the time-consuming aspect is calculation of weights for the null distributions 
+of test statistics. These are calculated only once and are 
+then handed to function \code{ic.test} for the further tests. Nevertheless, calculation 
+of weights for large problems takes a long time or is even impossible because of storage 
+space restrictions.
+
+It would be desirable to have a function for sequential testing of sources, 
+analogous to \code{anova}, for order-restricted linear models. 
+However, this would require the possibility to test a cone-shaped null 
+hypothesis vs.\ a larger cone-shaped alternative hypothesis, which is far from trivial. 
+So far, it has not been figured out how to implement such a test.
+
+\subsection[R2 decomposition]{$R^2$ decomposition}
+\label{ssec:R2decomp}
+It has been mentioned earlier that function \code{or.relimp} decomposes $R^2$ 
+into contributions of individual regressors. The method is implemented by 
+handing the $2^p$-vector of $R^2$~values for all sub-models to function \code{Shapley.value} 
+from \proglang{R}~package \pkg{kappalab} \citep{9b}. 
+The result is illustrated for the body fat example: 
+
+<<bodyfat.orrelimp>>=
+or.relimp(limo.bodyfat, ui = diag(1, 3))
+@
+
+Note that~\textendash~in this example~\textendash~although the coefficients are quite different from 
+those of the unrestricted model, the $R^2$~decomposition is very similar (\pkg{relaimpo} 
+must be loaded for the following calculation): 
+<<echo=false>>=
+require(relaimpo, quietly=TRUE)
+@
+
+<<bodyfat.calcrelimp>>=
+calc.relimp(limo.bodyfat)$lmg
+@
+
+So far, such similarity has been observed for all examples for which the restrictions 
+employed were plausible and adequate. 
+
+It has been mentioned in Section~\ref{ssec:est} 
+that automatic generation of restrictions for sub models is naturally done by deleting 
+the respective columns from the restriction matrix ($R$ or \code{ui}, respectively). 
+It is emphasized here once more that this is not adequate for all conceivable situations. 
+\emph{It is in the responsibility of the user to ensure that restrictions for sub models 
+are sensible and meaningful.} 
+
+Decomposition of $R^2$ requires calculation of $2^p$ \emph{constrained} 
+estimates. This involves significantly higher computational burden than for the unconstrained 
+case: For example, calculations on a 2.4GHz Dual Core Windows XP machine 
+in \code{calc.relimp} took 0.5~seconds for 10~regressors, about 17~seconds for 15~regressors 
+and about 580~seconds for 20~regressors. For the same scenarios, calculations in \code{or.relimp} 
+with all non-intercept coefficients restricted to be non-negative took 2.5~seconds for 10~regressors, 
+about 109~seconds for 15~regressors, and about 14800~seconds for 20~regressors. 
+In case of fewer restrictions than regressors, computing time is somewhat reduced; 
+for example, when restricting only 10 of the 15~coefficients in the 15~regressor situation, 
+\code{or.relimp} computing time was about 90~seconds. 
+Given that unconstrained models gave very similar $R^2$ decompositions in 
+all reasonable applications that have so far been examined, decompositions from 
+unconstrained models may very well be used at least as first checks.
+
+\section{Final remarks}
+\label{sec:final}
+Inequality-constrained inference and its implementation in \proglang{R}~package 
+\pkg{ic.infer} have been explained and illustrated in this article. 
+While \pkg{ic.infer} offers the most important possibilities for normal means and 
+linear models, some wishes remain 
+to be fulfilled with future developments. These will be discussed below.
+ 
+Within the linear model context, it would be desirable to implement some factor-related 
+functionality for function \code{orlm}, supporting e.g., an overall test of significance 
+for a factor as a whole or hypothesis tests corresponding to sequential analysis of variance 
+(analogously to function \code{anova}). It has been mentioned before that these topics may 
+prove difficult because they will often require testing a cone-shaped null hypothesis within 
+a larger cone-shaped alternative. Their feasibility will be investigated, and even if not 
+all situations can be covered, some may prove feasible (e.g., no restrictions on the factor, 
+inequality restrictions on the factor but on nothing else, ...).
+
+For non-linear models with asymptotically normal parameter estimates, users can 
+apply inequality-restricted inference on the coefficients through functions \code{ic.est} 
+or \code{ic.test}. A more direct approach would be desirable. It is intended to 
+extend coverage of the package to (selected) non-normal situations with linear equality 
+and inequality restrictions, for which it is known that the asymptotic distribution 
+of the likelihood ratio test statistic is also a mixture of $\chi^2$~distributions 
+\citep[cf.\ section~4 of][]{26}. Of course, inference is local and less robust, 
+if we leave the linear model. 
+
+Calculation of weights is a computational road block in case of many restrictions. 
+It will be explored if direct calculation of weights using Monte-Carlo methods is 
+more efficient than using Equation~(\ref{eqn:probface}) together with package \pkg{mvtnorm}. 
+
+Function \code{or.relimp} is currently restricted to linear models without factors. 
+It would be possible to include factors by grouping their dummies, like in 
+\pkg{relaimpo}. Also, it might be possible to enable usage of \code{or.relimp} for 
+larger problems than currently possible by a different programming approach~\textendash~however, 
+as long as no reasonable examples have been encountered for which constrained and 
+unconstrained decompositions make a relevant difference, improvements on \code{or.relimp} 
+have low priority.
+\section*{Acknowledgments} 
+My colleague Frank Hausser helped overcome initial numerical problems. The package 
+uses code by John Fox (functions \code{RREF} and \code{GaussianElimination}), 
+Wolfgang Huber (function \code{nchoosek}), and \citet[function \code{pchibar}]{27}. 
+A referee made very useful comments that 
+improved both the paper and the software.
+
+%\nocite{0}
+%\nocite{1}
+%\nocite{2}
+%\nocite{2a}
+%\nocite{2b}
+%\nocite{2c}
+%\nocite{3}
+%\nocite{4}
+%\nocite{5}
+%\nocite{6}
+%\nocite{7}
+%\nocite{7b}
+%\nocite{7c}
+%\nocite{8}
+%\nocite{9}
+%\nocite{9b}
+%\nocite{10}
+%\nocite{11}
+%\nocite{12}
+\nocite{12a}
+%\nocite{12b}
+%\nocite{12c}
+%\nocite{13}
+%\nocite{14}
+%\nocite{15}
+%\nocite{16}
+%\nocite{18}
+%\nocite{19}
+%\nocite{20}
+\nocite{21}
+%\nocite{22}
+%\nocite{22b}
+%\nocite{23}
+%\nocite{24}
+%\nocite{25}
+%\nocite{26}
+%\nocite{27}
+%\nocite{27b}
+%\nocite{28}
+%\nocite{29}
+
+\bibliography{quellen}
+\end{document}

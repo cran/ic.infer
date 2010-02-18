@@ -1,14 +1,12 @@
 \name{bodyfat}
 \alias{bodyfat}
-\title{ Body fat data from Neter et al. 1996 }
+\title{ Body fat data from Kutner et al. 2004 }
 \docType{data}
 \description{
 Data set with three explanatory variables and response variable body fat for 
-20 females. It comes from Neter et al., Chapter 7, Table 1 and is downloaded 
-from UCLA ATS whenever bodyfat() is executed.
+20 healthy females aged 35-44
 }
 \usage{
-bodyfat()
 bodyfat
 }
 
@@ -22,18 +20,23 @@ A data frame with four columns:
 }
 }
 \details{
-The data are usable with an existing internet connection only. The function call 
-\code{bodyfat()} downloads the data from the UCLA ATS website and creates the 
-data frame \code{bodyfat} that is subsequently present in the global environment.
+The data set contains three explanatory variables and the response variable body fat for 
+20 healthy females aged 35-44. As the variable body fat is very expensive to obtain, 
+predicting it with the cheaper dimensional measurements is desirable. There is 
+substantial multicollinearity among the explanatory variables.
 }
 \source{
-  Neter,J., Kutner,M., Nachtsheim,C., Wasserman W. (1996, 4th Ed.).
+  Kutner,M., Nachtsheim,C., Neter J., Li, W. (2005, 5th Ed.).
   \emph{Applied Linear Statistical Models}. McGraw-Hill, New York.
   
-  The data come from Table 1 in Chapter 7 of that book. 
+  Kutner,M., Nachtsheim,C., Neter J. (2004, 4th Ed.).
+  \emph{Applied Linear Regression Models}. McGraw-Hill, New York.
   
-  Note: The data are usable with an internet connection only, 
-  because McGraw-Hill was unable to grant a license for embedding the data into the package.
+  The data are published on the accompanying CD-Roms of those books 
+  (Table 1 in Chapter 7) and are also available online 
+  on the books homepages or from the UCLA website linked below. 
+  (Note that earlier editions of the bood had Neter as first author 
+  and included Wasserman as author, but the earlier editions do not have these data.)
 }
 \references{
 UCLA: Academic Technology Services, Statistical Consulting Group (2009). Textbook examples. 

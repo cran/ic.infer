@@ -1,5 +1,10 @@
 Change Log for R-package ic.infer
 
+Version 1.1-3 (18 February 2010)
+- makde pdf documentation file into a vignette
+- made bodyfat data available in the package (typed them in), 
+  i.e. got rid of function bodyfat()
+
 Version 1.1-2 (06 February 2010)
 - Removed selective capitalization of output headers
 - improved line break properties of output in summary.ict
