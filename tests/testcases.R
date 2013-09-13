@@ -5,7 +5,7 @@ colnames(mat) <- NULL
 covmat <- cov(swiss)
 linmod <- lm(swiss)
 linmodwt <- lm(swiss,weights=abs(-23:23))
-linmodfac <- lm(1/time~poison+treat+poison:treat,poisons)
+linmodfac <- lm(1/time~poison+treat+poison:treat,boot::poisons)
 
 ## check normal functionality for covariance matrix
 all.R2(covmat,ui=diag(1,5))

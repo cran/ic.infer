@@ -52,7 +52,7 @@ to make sure that the coding used in the model corresponds to the coding used in
         \code{\link{contr.diff}} for the specific monotonicity contrast function 
         from this package. }
 \examples{
-gifte <- poisons    ## gifte is German for poisons
+gifte <- boot::poisons    ## gifte is German for poisons
 ## default: contr.treatment (with default base 1)
 linmod <- lm(1/time~poison+treat, gifte)
 summary(orlm(linmod, ui=make.mon.ui(gifte$poison), index=2:3))

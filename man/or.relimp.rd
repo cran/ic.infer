@@ -92,7 +92,8 @@ covswiss <- cov(swiss)
 R2s <- all.R2(covswiss, ui=rbind(c(0,0,0,1,0),c(0,0,0,0,1)))
 R2s
 
-Shapley.value(set.func(R2s))  ## directly using package kappalab
+require(kappalab) ## directly using package kappalab
+Shapley.value(set.func(R2s))  
 
 ### with convenience wrapper from this package
 or.relimp(covswiss, ui=rbind(c(0,0,0,1,0),c(0,0,0,0,1)))
