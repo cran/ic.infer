@@ -179,8 +179,10 @@ ic.test <- function (obj, TP = 1, s2 = 1, df.error = Inf, ui0.11 = diag(rep(1,
         ### restricted b.restr if all inequality restrictions are inactive, 
         ### minimum is dimension of this space if all inequality restrictions are 
         ### active
+        
+        ### corrected August 1 2014: changed length(b.restr) to length(ci0.11)
         if (is.null(df)) 
-            df.bar <- (length(b.restr) - obj$meq):(length(b.restr) - 
+            df.bar <- (length(ci0.11) - obj$meq):(length(ci0.11) - 
                 nrow(uiw))
         else df.bar <- df
         if (df.error == Inf) 

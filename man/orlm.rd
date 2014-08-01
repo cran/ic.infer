@@ -206,6 +206,8 @@ Test 3 is conducted in case of no equality-restrictions only.
 \references{ Shapiro, A. (1988) Towards a unified theory of inequality-constrained 
     testing in multivariate analysis. \emph{International Statistical Review} 
     \bold{56}, 49--62}
+\note{Package versions up to 1.1-4 had a bug in function ic.test that caused 
+    the p-value of the overall model test to be too large.}
 \author{ Ulrike Groemping, BHT Berlin }
 \seealso{ See also \code{\link{ic.est}}, \code{\link{ic.test}}, 
         \code{\link{or.relimp}}, \code{solve.QP}}

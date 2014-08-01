@@ -1,5 +1,22 @@
 Change Log for R-package ic.infer
 
+Version 1.1-5 (1 August 2014)
+- Bug fix (serious bug, thanks to Leonard Vanbrabant for alerting me to this): 
+  df calculation in function ic.test was wrong for TP = 11: 
+  df were always too large because the length of the parameter vector was used 
+  for calculation instead of the number of constraints; 
+  this resulted in conservative p-values for TP = 11 in ic.test 
+  and consequently also for the overall test in summary.orlm;
+  for the latter, the first parameter of the beta distribution was always 0.5 
+  too large.
+  The bug has been fixed, and notes have been added to the documentation files 
+  of functions ic.test and orlm.
+- added an explanation to the documentation of pbetabar, 
+  explaining which mixture is calculated (different from the expectations that 
+  users of likelihood ratio tests in linear models might have; the denominator 
+  always adds the error sum of squares from the unrestricted model only, 
+  and therefore, the second beta parameter in the mixture is constant)
+
 Version 1.1-4 (13 Sep 2013)
 - updated CITATION file
 - removed assignment of object bodyfat into global enviroment (file aaa.R)

@@ -165,6 +165,8 @@ ic.test(obj, TP = 1, s2 = 1, df.error = Inf,
     Shapiro, A. (1988) Towards a unified theory of inequality-constrained 
        testing in multivariate analysis. \emph{International Statistical Review} 
        \bold{56}, 49--62}
+\note{Package versions up to 1.1-4 had a bug that caused p-values for TP=11 
+    to be too large.}
 \author{ Ulrike Groemping, BHT Berlin }
 \seealso{ See also \code{\link{ic.est}}, \code{\link{ic.weights}} }
 \examples{

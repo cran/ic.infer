@@ -42,7 +42,8 @@ pbetabar(x, df1, df2, wt)
              mixed into the betabar-distribution }
   \item{df2}{ second parameter of the beta-distributions to be 
              mixed into the betabar-distribution; error degrees of freedom
-             in the tests implemented for linear models in summary.orlm }
+             in the tests implemented for linear models in summary.orlm;\cr
+             NOTE: see details for the (perhaps unexpected) constancy of \code{df2} }
   }
 \details{
 Function \code{ic.weights} uses results by Kudo (1963) 
@@ -57,7 +58,13 @@ to function \code{pmvnorm} from package \code{mvtnorm}.
 
 Functions \code{pchibar} (taken from package ibdreg) and \code{pbetabar} 
 calculate cumulative probabilities from mixtures of chi-square and 
-beta-distributions, respectively. 
+beta-distributions, respectively.\cr
+IMPORTANT: Contrary to likelihood ratio theory in linear models, the beta 
+distributions mixed always use the error sum of squares from the unrestricted model, 
+i.e. the smallest possible error sum of squares with a fixed no. of df. Therefore, 
+the second df entry is not increased when decreasing the first! 
+This is appropriate for the test statistics calculated by functions \code{ic.test} 
+or \code{summary.orlm}, but not necessarily for test statistics obtained elsewhere. 
 }
 \value{
   \code{ic.weights} returns the vector of weights, 
