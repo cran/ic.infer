@@ -1,8 +1,21 @@
      import(quadprog, mvtnorm, boot)
      importFrom(kappalab, "Shapley.value","set.func")
-     export("orlm", "coef.orlm", "ic.est", "ic.test", "ic.weights", 
-            "summary.orlm", "summary.orest", "summary.ict",
-            "pchibar", "pbetabar","plot.orlm","contr.diff","make.mon.ui",
-            "print.ict","print.orest","print.orlm","or.relimp","all.R2",
-            "orlm.default","orlm.lm","or.relimp.default","or.relimp.lm",
+     importFrom(grDevices, "extendrange")
+     importFrom(graphics, "abline", "mtext", "panel.smooth", "par", "plot", "points", "strheight", "text", "title")
+     importFrom(stats, "coef", "contrasts", "cov.wt", "lm", "model.matrix", "pbeta", "pchisq", "pnorm", "pt", "vcov", "weighted.mean", "weights")
+     S3method(plot, orlm)
+     S3method(print, orlm)
+     S3method(print, orest)
+     S3method(print, ict)
+     S3method(orlm, default)
+     S3method(orlm, lm)
+     S3method(or.relimp, default)
+     S3method(or.relimp, lm)
+     S3method(coef, orlm)
+     S3method(summary, orlm)
+     S3method(summary, orest)
+     S3method(summary, ict)
+     export("ic.est", "ic.test", "ic.weights", 
+            "orlm","or.relimp",
+            "all.R2","pchibar", "pbetabar","contr.diff","make.mon.ui",
             "grades","bodyfat")

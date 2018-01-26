@@ -1,5 +1,12 @@
 Change Log for R-package ic.infer
 
+Version 1.1-6 (26 Jan 2018)
+- changed % to \% in example code in manual
+- changed title to title case
+- changed start of description (removed note because of "This package")
+- adapted namespace file to current requirements (S3Methods instead of export, 
+  importing functions from grDevices, stats and graphics)
+
 Version 1.1-5 (1 August 2014)
 - Bug fix (serious bug, thanks to Leonard Vanbrabant for alerting me to this): 
   df calculation in function ic.test was wrong for TP = 11: 

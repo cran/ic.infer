@@ -1,4 +1,5 @@
 ### R code from vignette source 'ic.infer.rnw'
+### Encoding: ISO8859-1
 
 ###################################################
 ### code chunk number 1: ic.infer.rnw:92-97

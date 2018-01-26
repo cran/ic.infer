@@ -1,5 +1,5 @@
-c31e67111a9fec2decd1f10b526d85f7 *DESCRIPTION
-907a4e5ea5056fa188883cf8f2bd38ae *NAMESPACE
+cf3bef5b54207968fb91c86545ea07f2 *DESCRIPTION
+f16847146f846ffda2174a5b5e595789 *NAMESPACE
 63c408f1f8c128fbf7185b2aa804c5fc *R/all.R2.R
 f89c3118f8ec264c1531c9d3e6c3119d *R/boot.orlm.R
 cdd8e71382f34b415ca6eab68f1d8642 *R/coef.orlm.R
@@ -27,11 +27,12 @@ a903d281e1026bfef15af7c9012eb02b *R/print.ict.R
 8d527a6d5fbb9e74b404800a77b68f3d *R/summary.ict.R
 df08e19d47d5e3b3efd69c24ae8e6566 *R/summary.orest.R
 f5a396740abcf0ee9502510d947b5ba5 *R/summary.orlm.R
-54106815b35f589285f121826214c294 *R/sysdata.rda
+f090c67e473ef58638c7b0e566d887eb *R/sysdata.rda
+48643ae5b66e9cc52df960caeb578f96 *build/vignette.rds
 a33328dda508e00220d326e66d708171 *inst/CITATION
-4c51c8f18179cb778d89d2547a13a861 *inst/NEWS
-3b46643a771eb60668e04011bbf28cf6 *inst/doc/ic.infer.R
-d01a241378b444a4c654f24a7cdddf9e *inst/doc/ic.infer.pdf
+79cbb88eb1402431fb3905a9bd3995c8 *inst/NEWS
+66f59db0830dbb51d9e7fd3b9ec676e0 *inst/doc/ic.infer.R
+9be41801382d5a0e5fa59edd9f73c154 *inst/doc/ic.infer.pdf
 e6ac2f0939edae8ef5b304788aa906a9 *inst/doc/ic.infer.rnw
 5ebb757d150709979ac3672843270cd3 *man/bodyfat.Rd
 aca2e19781ad5889b7baee40f2d2bc55 *man/contr.diff.Rd
@@ -39,8 +40,8 @@ aca2e19781ad5889b7baee40f2d2bc55 *man/contr.diff.Rd
 3e2a7609c20d07e41de9c2bbd400af96 *man/ic.est.Rd
 1b673dcc6926354b8938f4ab470f86be *man/ic.infer-package.rd
 82af92dcabfd27fceb0a1032a8886750 *man/ic.test.rd
-e163bb951b0d441899fc44af4203d6ce *man/ic.weights.rd
-3066e695f63acf4b9b6d699aec7e832a *man/internal.functions.rd
+c4c2ac44dff7fc4ebb3190a253252eaa *man/ic.weights.rd
+475b617fd9d7d94a0f9552bd60e11b51 *man/internal.functions.rd
 4a570cec183040b10a2a79b05f1c0d30 *man/make.mon.ui.rd
 1a912f851c55b1e1aa3e501dc67b8f95 *man/or.relimp.rd
 16bb1037e0c4f1f3dfcb2c7e6743de8f *man/orlm.rd
