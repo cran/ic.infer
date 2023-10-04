@@ -39,8 +39,8 @@ substantial multicollinearity among the explanatory variables.
   and included Wasserman as author, but the earlier editions do not have these data.)
 }
 \references{
-UCLA: Academic Technology Services, Statistical Consulting Group (2009). Textbook examples. 
-\url{http://www.ats.ucla.edu/stat/examples/default.htm} (accessed September 18, 2009).
+UCLA: Statistical Consulting Group (without year). Applied Linear Statistical Models by Neter, Kutner, et. al. Chapter 7: Multiple Regression II | SAS Textbook Examples. 
+\url{https://stats.oarc.ucla.edu/sas/examples/alsm/applied-linear-statistical-models-by-neter-kutner-et-al-chapter-7-multiple-regression-ii/} (accessed October 04, 2023).
 }
 \author{ Ulrike Groemping, BHT Berlin }
 % R documentation directory.

@@ -3,8 +3,8 @@
 \alias{orlm.lm}
 \alias{orlm.default}
 \alias{boot.orlm}
-\alias{orlm.forboot.fixed}
-\alias{orlm.forboot}
+\alias{orlm_forboot.fixed}
+\alias{orlm_forboot}
 \alias{coef.orlm}
 \alias{plot.orlm}
 \alias{print.orlm}
@@ -13,7 +13,7 @@
 \description{
 Function orlm calculates order-restricted linear models (linear equality and 
 inequality constraints). It uses the internal function boot.orlm for bootstrapping, 
-which in turn uses the internal functions orlm.forboot... . 
+which in turn uses the internal functions orlm_forboot... . 
 The remaining functions extract coefficients, provide a residual plot, give a 
 short printout or a more extensive summary.
 }
@@ -25,8 +25,8 @@ orlm(model, ui, ci, ...)
 \method{orlm}{default}(model, ui, ci, index = NULL, meq = 0, 
     tol = sqrt(.Machine$double.eps), df.error = NULL, ...)
 boot.orlm(model, B = 1000, fixed = FALSE, ui, ci, index, meq)
-orlm.forboot.fixed(data, indices, ...)
-orlm.forboot(data, indices, index = index, ...)
+orlm_forboot.fixed(data, indices, ...)
+orlm_forboot(data, indices, index = index, ...)
 \method{coef}{orlm}(object, \dots)
 \method{plot}{orlm}(x, caption = "Residuals vs Fitted", 
         panel = if (add.smooth) panel.smooth else points, sub.caption = NULL, 

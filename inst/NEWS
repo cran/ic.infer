@@ -1,5 +1,12 @@
 Change Log for R-package ic.infer
 
+Version 1.1-7 (04 Oct 2023)
+- updated CITATION to newer format
+- updated URLs to bht-berlin instead of beuth-hochschule
+- removed latin1 encoding
+- renamed internal functions orlm.forboot orlm.forboot.fixed to orlm_for... 
+  in order to avoid that they are interpreted as S3 methods   
+
 Version 1.1-6 (26 Jan 2018)
 - changed % to \% in example code in manual
 - changed title to title case
@@ -85,7 +92,7 @@ Version 1.0-4 (14 August 2008)
 Version 1.0-1 to 1.0-3 (13 August 2008)
 - Prohibit simultaneous occurrence of restriction on intercept and bootstrap
   (consequence of switching to covariance-matrix based calculation in bootstrap)
-- Bug fix for internal function orlm.forboot (index – 1 replaced by index in
+- Bug fix for internal function orlm_forboot (index – 1 replaced by index in
   call)
 - Bug fixes for ic.weights (even and odd sums were wrongly implemented and only
   worked for some numbers of restrictions)

@@ -1,14 +1,14 @@
 citHeader("To cite ic.infer in publications use:")
 
-citEntry(entry = "Article",
+bibentry(bibtype = "Article",
   title        = "Inference with Linear Equality and Inequality Constraints Using {R}: The Package {ic.infer}",
-  author       = personList(as.person("Ulrike Gr{\\\"o}mping")),
+  author       = c(as.person("Ulrike Gr{\\\"o}mping")),
   journal      = "Journal of Statistical Software",
   year         = "2010",
   volume       = "33",
   number       = "10",
   pages        = "1--31",
-  url          = "http://www.jstatsoft.org/v33/i10/",
+  url          = "https://www.jstatsoft.org/v33/i10/",
 
   textVersion  =
   paste("Ulrike Groemping (2010).",

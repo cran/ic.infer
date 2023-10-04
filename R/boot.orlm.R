@@ -11,12 +11,12 @@ boot.orlm <- function (model, B = 1000, fixed = FALSE, ui, ci, index, meq)
     if (is.null(wt)) 
         wt <- rep(1/nrow(DATA), nrow(DATA))
     if (!fixed) 
-        booterg <- boot(cbind(wt = wt, DATA), orlm.forboot, B, 
+        booterg <- boot(cbind(wt = wt, DATA), orlm_forboot, B, 
             ui = ui, ci = ci, index = index, meq = meq)
     else {
         e <- model$residuals
         fit <- model$fitted.values
-        booterg <- boot(data.frame(DATA, fit = fit, e = e), orlm.forboot.fixed, 
+        booterg <- boot(data.frame(DATA, fit = fit, e = e), orlm_forboot.fixed, 
             B, ui = ui, ci = ci, index = index, meq = meq)
     }
     booterg
